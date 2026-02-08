@@ -479,20 +479,38 @@ function Report() {
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 <LocationPicker
                   position={tempPosition}
-                  onSelect={async (lat, lng) => {
-                    setTempPosition([lat, lng]);
+                  // onSelect={async (lat, lng) => {
+                  //   setTempPosition([lat, lng]);
 
-                    try {
-                      const res = await fetch(
-                        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=en`,
-                        { headers: { "User-Agent": "ReportMitra/1.0" } }
-                      );
-                      const data = await res.json();
-                      setTempLocation(data.display_name || `${lat}, ${lng}`);
-                    } catch {
-                      setTempLocation(`${lat}, ${lng}`);
-                    }
-                  }}
+                  //   try {
+                  //     // const res = await fetch(
+                  //     //   `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=en`,
+                  //     //   { headers: { "User-Agent": "ReportMitra/1.0" } }
+                  //     // );
+                  //     const data = await res.json();
+                  //     setTempLocation(data.display_name || `${lat}, ${lng}`);
+                  //   } catch {
+                  //     setTempLocation(`${lat}, ${lng}`);
+                  //   }
+                  // }}
+                  onSelect={async (lat, lng) => {
+                  setTempPosition([lat, lng]);
+
+                  try {
+                    const res = await fetch(
+                      `http://localhost:8000/reverse-geocode/?lat=${lat}&lon=${lng}`
+                    );
+
+                    if (!res.ok) throw new Error("Reverse geocoding failed");
+
+                    const data = await res.json();
+                    setTempLocation(data.display_name || `${lat}, ${lng}`);
+                  } catch (err) {
+                    console.error(err);
+                    setTempLocation(`${lat}, ${lng}`);
+                  }
+                }}
+
                 />
               </MapContainer>
             </div>

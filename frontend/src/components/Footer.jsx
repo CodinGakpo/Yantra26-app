@@ -67,7 +67,7 @@ const Footer = () => {
                   support@reportmitra.in
                 </a>
               </p>
-              <p className="flex items-center justify-center md:justify-start">
+              {/* <p className="flex items-center justify-center md:justify-start">
                 <BookOpen className="w-4 h-4 mr-2" />
                 <a 
                   href="https://dibyajyoti-chakrabarti.vercel.app/projects/reportmitra" 
@@ -77,7 +77,7 @@ const Footer = () => {
                 >
                   Documentation
                 </a>
-              </p>
+              </p> */}
               <p className="flex items-center justify-center md:justify-start text-sm pt-2">
                 <span className="text-gray-500">Secure government portal</span>
               </p>

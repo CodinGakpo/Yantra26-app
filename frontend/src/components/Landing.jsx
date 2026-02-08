@@ -8,6 +8,7 @@ import Navbar from "./Navbar";
 import report from "../assets/reporticon.png";
 import analysis from "../assets/analysisicon.png";
 import community from "../assets/communityicon.jpg";
+import { TrendingUp, Shield, Users, ArrowRight, Zap, CheckCircle, ChevronRight, ChevronDown } from "lucide-react";
 
 const Landing = () => {
   const { isAuthenticated } = useAuth();
@@ -18,11 +19,16 @@ const Landing = () => {
   };
 
   return (
-    <div className="relative flex flex-col min-h-screen text-white overflow-x-hidden">
+    <div className="relative flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 overflow-x-hidden">
       <Navbar />
 
+      {/* Decorative background elements */}
+      <div className="fixed top-20 right-10 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
+      <div className="fixed top-40 left-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+      <div className="fixed bottom-20 left-1/2 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+
       <div
-        className="fixed inset-0 -z-10 overflow-hidden brightness-40"
+        className="fixed inset-0 -z-10 overflow-hidden opacity-15"
         style={{
           backgroundImage: `url(${bg_img})`,
           backgroundSize: "cover",
@@ -48,203 +54,453 @@ const Landing = () => {
       </div>
 
       <main className="flex-grow container mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-12 md:py-20 text-center flex flex-col gap-8 md:gap-10 justify-center pt-6 md:pt-12">
-        <h1 className="text-4xl sm:text-4xl md:text-6xl lg:text-8xl font-bold mt-15 md:mt-12 leading-tight lg:mt-12">
-          Welcome to ReportMitra
-        </h1>
+        {/* Hero Section */}
+        <div className="relative">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-black mt-15 md:mt-12 leading-tight lg:mt-12 text-gray-900 mb-4">
+            Welcome to <span className="relative inline-block">
+              <span className="relative z-10">NagrikMitra</span>
+              <span className="absolute bottom-2 left-0 w-full h-4 bg-yellow-300 -skew-y-1 -z-0"></span>
+            </span>
+          </h1>
+          <p className="text-xl sm:text-2xl md:text-3xl text-gray-600 font-semibold max-w-3xl mx-auto">
+            Your Voice. Your City. Your Impact.
+          </p>
+        </div>
 
-        <div className="font-bold text-lg sm:text-xl md:text-3xl lg:text-4xl px-1 md:px-4">
+        {/* Updated TextType styling for visibility: Dark background for white text */}
+        <div className="font-bold text-lg sm:text-xl md:text-2xl lg:text-3xl px-6 md:px-8 text-white bg-indigo-900/90 backdrop-blur-md py-3 rounded-full max-w-fit mx-auto shadow-xl border-2 border-indigo-200/50">
           <TextType
             text={[
-              "Report issues instantly",
-              "Make Bangalore cleaner",
-              "Your voice matters",
-              "Help shape your city",
-              "Every complaint counts",
-              "Small actions, big impact",
-              "Together for a better Bangalore",
-              "Be the change",
-              "Happy citizens, happy city",
-              "Track complaints like a pro",
-              "No pothole too small",
-              "Make noise, get results",
+              "Report issues instantly ⚡",
+              "Make Bangalore cleaner 🌿",
+              "Your voice matters 📢",
+              "Help shape your city 🏙️",
+              "Every complaint counts 📊",
+              "Small actions, big impact 💪",
+              "Together for a better Bangalore 🤝",
+              "Be the change you wish to see ✨",
+              "Happy citizens, happy city 😊",
+              "Track complaints like a pro 🎯",
+              "No pothole too small 🚧",
+              "Make noise, get results 🔔",
             ]}
             typingSpeed={50}
             pauseDuration={1500}
             showCursor={true}
-            cursorCharacter="."
+            cursorCharacter="|"
           />
         </div>
 
         {!isAuthenticated && (
-          <div className="flex justify-center">
+          <div className="flex flex-col sm:flex-row justify-center gap-4 items-center">
             <button
               onClick={handleGetStarted}
-              className="bg-white font-bold cursor-pointer text-black px-6 sm:px-8 md:px-10 py-2.5 sm:py-3 rounded-full hover:scale-105 hover:bg-black hover:text-white transition duration-200 text-lg sm:text-xl md:text-2xl"
+              className="group relative bg-gradient-to-r from-indigo-600 to-purple-600 font-bold cursor-pointer text-white px-8 sm:px-10 md:px-12 py-3 sm:py-4 rounded-full hover:scale-105 transition-all duration-300 text-lg sm:text-xl md:text-2xl shadow-2xl hover:shadow-indigo-500/50 flex items-center gap-2"
             >
               Get Started
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </button>
+            <div className="flex items-center gap-2 text-gray-600 text-sm">
+              <CheckCircle className="w-4 h-4 text-green-600" />
+              <span>Free forever • No credit card required</span>
+            </div>
           </div>
         )}
 
+        {/* Steps Section (How It Works) */}
         <section className="mt-8 md:mt-12 w-full">
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center mb-6 md:mb-8">
-            How It Works
-          </h2>
+          <div className="mb-8 md:mb-10">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 mb-3">
+              How It <span className="relative inline-block">
+              <span className="relative z-10">Works</span>
+              <span className="absolute bottom-0 left-0 w-full h-2 bg-yellow-300"></span>
+            </span>
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Three simple steps to make a difference in your community
+            </p>
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-7xl mx-auto px-2 md:px-0 place-items-stretch">
-            {isAuthenticated ? (
-              <Link
-                to="/report"
-                className="relative w-full hover:scale-105 transition-transform cursor-pointer"
-              >
-                <div className="absolute inset-0 bg-white text-black border border-gray-200 opacity-90 rounded-xl "></div>
-                <div className="relative text-black p-5 sm:p-6 md:p-8 flex flex-col items-center text-center h-full">
-                  <img
-                    src={report}
-                    alt="Report"
-                    className="w-14 h-14 sm:w-16 sm:h-16 mb-3 rounded-full"
-                  />
-                  <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold mb-2">
-                    Report Issues
-                  </h3>
-                  <p className="text-sm sm:text-base md:text-base max-w-xs">
-                    Easily report civic problems with photos and location details.
-                  </p>
+          <div className="flex flex-col lg:flex-row items-center justify-center gap-4 lg:gap-2 max-w-7xl mx-auto px-2">
+            
+            {/* STEP 1 */}
+            <div className="flex-1 w-full">
+              {isAuthenticated ? (
+                <Link to="/report" className="relative block group h-full">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-indigo-500 opacity-0 group-hover:opacity-100 rounded-3xl blur-xl transition-all duration-500"></div>
+                  <div className="relative bg-white border-2 border-blue-200 hover:border-blue-400 shadow-xl rounded-3xl transition-all duration-300 h-full flex flex-col">
+                    <div className="p-6 sm:p-7 md:p-9 flex flex-col items-center text-center h-full">
+                      <div className="relative mb-4">
+                        <div className="absolute inset-0 bg-blue-400 rounded-full blur-lg opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                        <img src={report} alt="Report" className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-blue-100 shadow-lg" />
+                      </div>
+                      <div className="absolute top-4 left-4 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">STEP 1</div>
+                      <h3 className="text-2xl sm:text-3xl font-black mb-3 text-gray-900">Report Issues</h3>
+                      <p className="text-base text-gray-600 leading-relaxed flex-grow">Easily report civic problems with photos and location details in seconds.</p>
+                      <div className="mt-4 flex items-center text-blue-600 font-semibold group-hover:translate-x-2 transition-transform">
+                        Start Reporting <ArrowRight className="w-4 h-4 ml-2" />
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ) : (
+                <div onClick={handleGetStarted} className="relative block group h-full cursor-pointer">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-indigo-500 opacity-0 group-hover:opacity-100 rounded-3xl blur-xl transition-all duration-500"></div>
+                  <div className="relative bg-white border-2 border-blue-200 hover:border-blue-400 shadow-xl rounded-3xl transition-all duration-300 h-full flex flex-col">
+                    <div className="p-6 sm:p-7 md:p-9 flex flex-col items-center text-center h-full">
+                      <div className="relative mb-4">
+                        <div className="absolute inset-0 bg-blue-400 rounded-full blur-lg opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                        <img src={report} alt="Report" className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-blue-100 shadow-lg" />
+                      </div>
+                      <div className="absolute top-4 left-4 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">STEP 1</div>
+                      <h3 className="text-2xl sm:text-3xl font-black mb-3 text-gray-900">Report Issues</h3>
+                      <p className="text-base text-gray-600 leading-relaxed flex-grow">Login required to report issues. Click to sign in and get started.</p>
+                      <div className="mt-4 flex items-center text-blue-600 font-semibold group-hover:translate-x-2 transition-transform">
+                        Get Started <ArrowRight className="w-4 h-4 ml-2" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Stylish Directional Arrow 1 */}
+            <div className="flex items-center justify-center px-4 py-2">
+              <div className="relative">
+                {/* Mobile: Down Arrow */}
+                <div className="lg:hidden flex flex-col items-center gap-1 text-indigo-400">
+                  <div className="w-1 h-8 bg-gradient-to-b from-indigo-400 to-purple-400 rounded-full"></div>
+                  <ChevronDown className="w-10 h-10 animate-bounce" strokeWidth={3} />
+                  <div className="w-1 h-8 bg-gradient-to-b from-purple-400 to-indigo-400 rounded-full"></div>
+                </div>
+                
+                {/* Desktop: Right Arrow */}
+                <div className="hidden lg:flex items-center gap-1 text-indigo-400">
+                  <div className="h-1 w-12 bg-gradient-to-r from-indigo-400 to-purple-400 rounded-full"></div>
+                  <ChevronRight className="w-12 h-12 animate-pulse" strokeWidth={3} />
+                  <div className="h-1 w-12 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-full"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* STEP 2 */}
+            <div className="flex-1 w-full">
+              <Link to="/track" className="relative block group h-full">
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-400 to-purple-500 opacity-0 group-hover:opacity-100 rounded-3xl blur-xl transition-all duration-500"></div>
+                <div className="relative bg-white border-2 border-indigo-200 hover:border-indigo-400 shadow-xl rounded-3xl transition-all duration-300 h-full flex flex-col">
+                  <div className="p-6 sm:p-7 md:p-9 flex flex-col items-center text-center h-full">
+                    <div className="relative mb-4">
+                      <div className="absolute inset-0 bg-indigo-400 rounded-full blur-lg opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                      <div className="relative h-16 w-16 sm:h-20 sm:w-20 bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center rounded-full border-4 border-indigo-100 shadow-lg">
+                        <img src={analysis} alt="Track" className="w-8 h-8 sm:w-12 sm:h-12" />
+                      </div>
+                    </div>
+                    <div className="absolute top-4 left-4 bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full">STEP 2</div>
+                    <h3 className="text-2xl sm:text-3xl font-black mb-3 text-gray-900">Track Progress</h3>
+                    <p className="text-base text-gray-600 leading-relaxed flex-grow">Monitor the status of your complaints in real-time with live updates.</p>
+                    <div className="mt-4 flex items-center text-indigo-600 font-semibold group-hover:translate-x-2 transition-transform">
+                      View Tracking <ArrowRight className="w-4 h-4 ml-2" />
+                    </div>
+                  </div>
                 </div>
               </Link>
-            ) : (
-              <div
-                onClick={handleGetStarted}
-                className="relative w-full hover:scale-105 transition-transform cursor-pointer"
-              >
-                <div className="absolute inset-0 bg-white text-black border border-gray-200 opacity-90 rounded-xl"></div>
-                <div className="relative text-black p-5 sm:p-6 md:p-8 flex flex-col items-center text-center h-full">
-                  <img
-                    src={report}
-                    alt="Report"
-                    className="w-14 h-14 sm:w-16 sm:h-16 mb-3 rounded-full"
-                  />
-                  <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold mb-2">
-                    Report Issues
-                  </h3>
-                  <p className="text-sm sm:text-base md:text-base max-w-xs">
-                    Login required to report issues. Click to sign in.
-                  </p>
+            </div>
+
+            {/* Stylish Directional Arrow 2 */}
+            <div className="flex items-center justify-center px-4 py-2">
+              <div className="relative">
+                {/* Mobile: Down Arrow */}
+                <div className="lg:hidden flex flex-col items-center gap-1 text-purple-400">
+                  <div className="w-1 h-8 bg-gradient-to-b from-purple-400 to-pink-400 rounded-full"></div>
+                  <ChevronDown className="w-10 h-10 animate-bounce" strokeWidth={3} />
+                  <div className="w-1 h-8 bg-gradient-to-b from-pink-400 to-purple-400 rounded-full"></div>
+                </div>
+                
+                {/* Desktop: Right Arrow */}
+                <div className="hidden lg:flex items-center gap-1 text-purple-400">
+                  <div className="h-1 w-12 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full"></div>
+                  <ChevronRight className="w-12 h-12 animate-pulse" strokeWidth={3} />
+                  <div className="h-1 w-12 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full"></div>
                 </div>
               </div>
-            )}
+            </div>
 
-            <Link
-              to="/track"
-              className="relative w-full hover:scale-105 transition-transform cursor-pointer"
-            >
-              <div className="absolute inset-0 bg-white text-black border border-gray-200 opacity-90 rounded-xl"></div>
-              <div className="relative text-black p-5 sm:p-6 md:p-8 flex flex-col items-center text-center h-full">
-                <div className="h-14 w-14 sm:h-16 sm:w-16 bg-white flex items-center justify-center mb-3  rounded-full">
-                  <img src={analysis} alt="Track" className="w-7 h-7 sm:w-10 sm:h-10" />
+            {/* STEP 3 */}
+            <div className="flex-1 w-full">
+              <Link to="/community" className="relative block group h-full">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-400 to-pink-500 opacity-0 group-hover:opacity-100 rounded-3xl blur-xl transition-all duration-500"></div>
+                <div className="relative bg-white border-2 border-purple-200 hover:border-purple-400 shadow-xl rounded-3xl transition-all duration-300 h-full flex flex-col">
+                  <div className="p-6 sm:p-7 md:p-9 flex flex-col items-center text-center h-full">
+                    <div className="relative mb-4">
+                      <div className="absolute inset-0 bg-purple-400 rounded-full blur-lg opacity-30 group-hover:opacity-50 transition-opacity"></div>
+                      <img src={community} alt="Community" className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full border-4 border-purple-100 shadow-lg" />
+                    </div>
+                    <div className="absolute top-4 left-4 bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full">STEP 3</div>
+                    <h3 className="text-2xl sm:text-3xl font-black mb-3 text-gray-900">Community Impact</h3>
+                    <p className="text-base text-gray-600 leading-relaxed flex-grow">See how your reports contribute to city improvement and inspire others.</p>
+                    <div className="mt-4 flex items-center text-purple-600 font-semibold group-hover:translate-x-2 transition-transform">
+                      Join Community <ArrowRight className="w-4 h-4 ml-2" />
+                    </div>
+                  </div>
                 </div>
-
-                <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold mb-2">Track Progress</h3>
-                <p className="text-sm sm:text-base md:text-base max-w-xs">Monitor the status of your complaints in real-time.</p>
-              </div>
-            </Link>
-
-            <Link
-              to="/community"
-              className="relative w-full hover:scale-105 transition-transform cursor-pointer md:col-span-2 lg:col-span-1"
-            >
-              <div className="absolute inset-0 bg-white text-black border border-gray-200 opacity-90 rounded-xl"></div>
-              <div className="relative text-black p-5 sm:p-6 md:p-8 flex flex-col items-center text-center h-full ">
-                <img src={community} alt="Community" className="w-14 h-14 sm:w-16 sm:h-16 mb-3  rounded-full" />
-                <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold mb-2">Community Impact</h3>
-                <p className="text-sm sm:text-base md:text-base max-w-xs">See how your reports contribute to city improvement.</p>
-              </div>
-            </Link>
+              </Link>
+            </div>
           </div>
         </section>
+
+        {/* Enhanced Stats Section with Visual Representations */}
+        <section className="mt-20 max-w-6xl mx-auto">
+          <div className="mb-12 text-center">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 mb-3">
+              Our <span className="relative inline-block">
+                <span className="relative z-10">Impact</span>
+                <span className="absolute bottom-0 left-0 w-full h-2 bg-yellow-300"></span>
+              </span>
+            </h2>
+            <p className="text-lg text-gray-600">Real numbers, real change in Bangalore</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Issues Resolved - Progress Bar Graph */}
+            <div className="bg-white rounded-3xl p-8 shadow-xl border-2 border-indigo-100 hover:border-indigo-300 transition-all duration-300 hover:shadow-2xl">
+              <div className="flex items-center justify-between mb-6">
+                <div className="p-3 bg-indigo-100 rounded-2xl">
+                  <TrendingUp className="w-8 h-8 text-indigo-600" />
+                </div>
+                <div className="text-right">
+                  <p className="text-4xl md:text-5xl font-black text-gray-900">10K+</p>
+                  <p className="text-sm text-gray-500 font-semibold">RESOLVED</p>
+                </div>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Issues Resolved</h3>
+              
+              {/* Mini Bar Graph */}
+              <div className="space-y-3">
+                <div>
+                  <div className="flex justify-between text-xs text-gray-600 mb-1">
+                    <span>This Month</span>
+                    <span>850</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full animate-pulse" style={{width: "85%"}}></div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-xs text-gray-600 mb-1">
+                    <span>Last Month</span>
+                    <span>720</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-indigo-400 to-indigo-500 rounded-full" style={{width: "72%"}}></div>
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-xs text-gray-600 mb-1">
+                    <span>Avg Monthly</span>
+                    <span>650</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-indigo-300 to-indigo-400 rounded-full" style={{width: "65%"}}></div>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <p className="text-xs text-green-600 font-bold flex items-center gap-1">
+                  <span className="inline-block w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
+                  +18% from last month
+                </p>
+              </div>
+            </div>
+
+            {/* Active Citizens - Speedometer Style */}
+            <div className="bg-white rounded-3xl p-8 shadow-xl border-2 border-purple-100 hover:border-purple-300 transition-all duration-300 hover:shadow-2xl">
+              <div className="flex items-center justify-between mb-6">
+                <div className="p-3 bg-purple-100 rounded-2xl">
+                  <Users className="w-8 h-8 text-purple-600" />
+                </div>
+                <div className="text-right">
+                  <p className="text-4xl md:text-5xl font-black text-gray-900">50K+</p>
+                  <p className="text-sm text-gray-500 font-semibold">ACTIVE</p>
+                </div>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-6">Active Citizens</h3>
+              
+              {/* Speedometer Visual */}
+              <div className="relative w-full aspect-square max-w-[200px] mx-auto">
+                {/* Outer Circle */}
+                <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                  {/* Background Circle */}
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    fill="none"
+                    stroke="#f3f4f6"
+                    strokeWidth="8"
+                  />
+                  {/* Progress Circle */}
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="40"
+                    fill="none"
+                    stroke="url(#purpleGradient)"
+                    strokeWidth="8"
+                    strokeDasharray="251.2"
+                    strokeDashoffset="62.8"
+                    strokeLinecap="round"
+                    className="transition-all duration-1000"
+                  />
+                  <defs>
+                    <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#a855f7" />
+                      <stop offset="100%" stopColor="#ec4899" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <p className="text-3xl font-black text-purple-600">75%</p>
+                  <p className="text-xs text-gray-500">Engagement</p>
+                </div>
+              </div>
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <p className="text-xs text-purple-600 font-bold flex items-center gap-1">
+                  <span className="inline-block w-2 h-2 bg-purple-600 rounded-full animate-pulse"></span>
+                  High community engagement
+                </p>
+              </div>
+            </div>
+
+            {/* System Monitoring - Live Gauge */}
+            <div className="bg-white rounded-3xl p-8 shadow-xl border-2 border-pink-100 hover:border-pink-300 transition-all duration-300 hover:shadow-2xl">
+              <div className="flex items-center justify-between mb-6">
+                <div className="p-3 bg-pink-100 rounded-2xl">
+                  <Shield className="w-8 h-8 text-pink-600" />
+                </div>
+                <div className="text-right">
+                  <p className="text-4xl md:text-5xl font-black text-gray-900">24/7</p>
+                  <p className="text-sm text-gray-500 font-semibold">UPTIME</p>
+                </div>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-6">System Monitoring</h3>
+              
+              {/* Live Status Indicators */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 bg-green-50 rounded-xl border border-green-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-semibold text-gray-700">Server Status</span>
+                  </div>
+                  <span className="text-xs font-bold text-green-600">ONLINE</span>
+                </div>
+                
+                <div className="flex items-center justify-between p-3 bg-green-50 rounded-xl border border-green-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-semibold text-gray-700">Database</span>
+                  </div>
+                  <span className="text-xs font-bold text-green-600">ACTIVE</span>
+                </div>
+                
+                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-xl border border-blue-200">
+                  <div className="flex items-center gap-3">
+                    <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm font-semibold text-gray-700">Response Time</span>
+                  </div>
+                  <span className="text-xs font-bold text-blue-600">45ms</span>
+                </div>
+              </div>
+              
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <p className="text-xs text-green-600 font-bold flex items-center gap-1">
+                  <span className="inline-block w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
+                  99.9% uptime this month
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features Highlight */}
+       <section className="mt-16 max-w-5xl mx-auto">
+  <div className="bg-white rounded-3xl p-8 md:p-12 shadow-xl shadow-indigo-100/50 border border-indigo-100 relative overflow-hidden">
+    
+    {/* Subtle background blurs for a soft highlight effect */}
+    <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50/50 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl"></div>
+    <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-50/50 rounded-full translate-y-1/2 -translate-x-1/2 blur-2xl"></div>
+
+    <div className="relative z-10">
+      <div className="flex items-center justify-center mb-4">
+        <div className="p-3 bg-indigo-50 rounded-full border border-indigo-100">
+          <Zap className="w-8 h-8 text-indigo-600" />
+        </div>
+      </div>
+      
+      <h2 className="text-3xl md:text-4xl font-black text-center mb-12 text-gray-900">
+        Why Choose NagrikMitra?
+      </h2>
+
+      <div className="grid md:grid-cols-3 gap-8 relative">
+        {/* Feature 1: Transparent (Blue Theme) */}
+        <div className="flex flex-col items-center text-center group">
+          <div className="mb-4 p-4 rounded-2xl bg-blue-50 text-blue-600 group-hover:bg-blue-100 group-hover:scale-110 transition-all duration-300 border border-blue-100">
+            <CheckCircle className="w-8 h-8" />
+          </div>
+          <h3 className="font-bold text-xl mb-2 text-gray-900">100% Transparent</h3>
+          <p className="text-gray-600 text-sm leading-relaxed max-w-xs">
+            Track every step of your complaint resolution process in real-time.
+          </p>
+        </div>
+
+        {/* Feature 2: Secure (Purple Theme) */}
+        <div className="flex flex-col items-center text-center group">
+          <div className="mb-4 p-4 rounded-2xl bg-purple-50 text-purple-600 group-hover:bg-purple-100 group-hover:scale-110 transition-all duration-300 border border-purple-100">
+            <Shield className="w-8 h-8" />
+          </div>
+          <h3 className="font-bold text-xl mb-2 text-gray-900">Secure & Safe</h3>
+          <p className="text-gray-600 text-sm leading-relaxed max-w-xs">
+            Government-backed platform ensuring your data remains protected.
+          </p>
+        </div>
+
+        {/* Feature 3: Proven (Indigo Theme) */}
+        <div className="flex flex-col items-center text-center group">
+          <div className="mb-4 p-4 rounded-2xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-100 group-hover:scale-110 transition-all duration-300 border border-indigo-100">
+            <TrendingUp className="w-8 h-8" />
+          </div>
+          <h3 className="font-bold text-xl mb-2 text-gray-900">Proven Results</h3>
+          <p className="text-gray-600 text-sm leading-relaxed max-w-xs">
+            Thousands of civic issues resolved successfully across the city.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
       </main>
 
-      <section className="w-full bg-black text-white py-16 sm:py-20 lg:py-24 px-4 sm:px-6 md:px-8 lg:px-12">
-        <div className="max-w-6xl mx-auto flex flex-col gap-12 sm:gap-16">
-
-          <div className="bg-gradient-to-br from-gray-900 to-black p-8 sm:p-10 md:p-12 rounded-2xl border border-white/10 shadow-2xl hover:border-white/20 transition-all duration-300">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="h-12 w-1 bg-blue-500"></div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Our Mission</h2>
-            </div>
-
-            <p className="text-base sm:text-lg leading-relaxed text-gray-300">
-              Our mission is to build a unified and transparent civic reporting platform that every
-              citizen of Bengaluru can rely on. We want to remove the confusion around where and how
-              to report issues, and provide a single, trusted destination for citizens to highlight
-              civic problems.
-            </p>
-            <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-4">
-              We aim to make reporting simple, eliminate unnecessary delays caused by manual routing,
-              and ensure that every complaint reaches the correct department without friction. Through
-              clear communication, accessible tools, and reliable tracking, ReportMitra empowers citizens
-              to take meaningful action in improving their neighbourhoods.
-            </p>
-            <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-4">
-              At its core, our mission is to strengthen the relationship between the people of Bengaluru
-              and the systems that serve them — making civic participation easier, faster, and more impactful.
-            </p>
-          </div>
-
-          <div className="bg-gradient-to-br from-gray-900 to-black p-8 sm:p-10 md:p-12 rounded-2xl border border-white/10 shadow-2xl hover:border-white/20 transition-all duration-300">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="h-12 w-1 bg-blue-500"></div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Our Vision</h2>
-            </div>
-
-            <p className="text-base sm:text-lg leading-relaxed text-gray-300">
-              We envision a future where Bengaluru becomes a model for citizen-driven urban improvement.
-              A city where everyone — from daily commuters to families to students — has the ability to
-              report issues effortlessly, track real progress, and see visible outcomes in their community.
-            </p>
-            <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-4">
-              Our vision is a Bengaluru where transparency is the norm, technology removes unnecessary
-              barriers, and civic bodies and citizens work together with mutual trust. We believe that
-              cleaner, safer, and smarter neighbourhoods can be achieved when citizens are empowered
-              with the right tools and information.
-            </p>
-            <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-4">
-              Ultimately, we aspire to build a city where civic problems don't accumulate silently but
-              are acknowledged, addressed, and resolved with efficiency — shaping a more accountable and
-              responsive urban environment for everyone.
-            </p>
-          </div>
-
-          {/* <div className="bg-gradient-to-br from-gray-900 to-black p-8 sm:p-10 md:p-12 rounded-2xl border border-white/10 shadow-2xl hover:border-white/20 transition-all duration-300">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="h-12 w-1 bg-blue-500"></div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">Why ReportMitra?</h2>
-            </div>
-
-            <p className="text-base sm:text-lg leading-relaxed text-gray-300">
-              Civic issues in Bengaluru often go unresolved simply because citizens are unsure where to
-              report them, which department is responsible, or whether their complaints will lead to any
-              visible action. ReportMitra was created to bring clarity and confidence to this process.
-            </p>
-            <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-4">
-              Through machine learning, every report is automatically classified and sent to the correct
-              civic department — eliminating delays and reducing the dependency on manual decision-making.
-              Our priority-based escalation model ensures long-pending issues receive increasing attention
-              over time, even if the citizen does not repeatedly follow up.
-            </p>
-            <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-4">
-              By giving residents a transparent way to track progress and stay informed, we aim to foster
-              a culture where civic participation becomes easy, meaningful, and rewarding.
-            </p>
-            <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-4">
-              ReportMitra exists because Bengaluru deserves a system where every problem is heard, every
-              voice matters, and every neighbourhood is valued.
-            </p>
-          </div> */}
-        </div>
+      <section className="w-full bg-gradient-to-b from-white via-slate-50 to-blue-50 py-16 sm:py-20 lg:py-24 px-4 sm:px-6 md:px-8 lg:px-12">
       </section>
 
       <Footer />
+
+      <style jsx>{`
+        @keyframes blob {
+          0% { transform: translate(0px, 0px) scale(1); }
+          33% { transform: translate(30px, -50px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.9); }
+          100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        .animation-delay-4000 {
+          animation-delay: 4s;
+        }
+      `}</style>
     </div>
   );
 };

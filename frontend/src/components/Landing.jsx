@@ -8,7 +8,7 @@ import Navbar from "./Navbar";
 import report from "../assets/reporticon.png";
 import analysis from "../assets/analysisicon.png";
 import community from "../assets/communityicon.jpg";
-import { TrendingUp, Shield, Users, ArrowRight, Zap, CheckCircle, ChevronRight, ChevronDown } from "lucide-react";
+import { TrendingUp, Shield, Users, ArrowRight, Zap, CheckCircle, ChevronRight, ChevronDown,Clock } from "lucide-react";
 
 const Landing = () => {
   const { isAuthenticated } = useAuth();
@@ -113,7 +113,7 @@ const Landing = () => {
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 mb-3">
               How It <span className="relative inline-block">
               <span className="relative z-10">Works</span>
-              <span className="absolute bottom-0 left-0 w-full h-2 bg-yellow-300"></span>
+              <span className="absolute -bottom-0.5 left-0 w-full h-2 bg-yellow-300"></span>
             </span>
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
@@ -249,177 +249,223 @@ const Landing = () => {
         </section>
 
         {/* Enhanced Stats Section with Visual Representations */}
-        <section className="mt-20 max-w-6xl mx-auto">
-          <div className="mb-12 text-center">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 mb-3">
-              Our <span className="relative inline-block">
-                <span className="relative z-10">Impact</span>
-                <span className="absolute bottom-0 left-0 w-full h-2 bg-yellow-300"></span>
-              </span>
-            </h2>
-            <p className="text-lg text-gray-600">Real numbers, real change in Bangalore</p>
-          </div>
+       <section className="mt-20 max-w-6xl mx-auto">
+  <div className="mb-12 text-center">
+    <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 mb-3">
+      Our{" "}
+      <span className="relative inline-block">
+        <span className="relative z-10">Impact</span>
+        <span className="absolute bottom-0 left-0 w-full h-2 bg-yellow-300"></span>
+      </span>
+    </h2>
+    <p className="text-lg text-gray-600">
+      Real numbers, real change in Bangalore
+    </p>
+  </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Issues Resolved - Progress Bar Graph */}
-            <div className="bg-white rounded-3xl p-8 shadow-xl border-2 border-indigo-100 hover:border-indigo-300 transition-all duration-300 hover:shadow-2xl">
-              <div className="flex items-center justify-between mb-6">
-                <div className="p-3 bg-indigo-100 rounded-2xl">
-                  <TrendingUp className="w-8 h-8 text-indigo-600" />
-                </div>
-                <div className="text-right">
-                  <p className="text-4xl md:text-5xl font-black text-gray-900">10K+</p>
-                  <p className="text-sm text-gray-500 font-semibold">RESOLVED</p>
-                </div>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Issues Resolved</h3>
-              
-              {/* Mini Bar Graph */}
-              <div className="space-y-3">
-                <div>
-                  <div className="flex justify-between text-xs text-gray-600 mb-1">
-                    <span>This Month</span>
-                    <span>850</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full animate-pulse" style={{width: "85%"}}></div>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-xs text-gray-600 mb-1">
-                    <span>Last Month</span>
-                    <span>720</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-indigo-400 to-indigo-500 rounded-full" style={{width: "72%"}}></div>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-xs text-gray-600 mb-1">
-                    <span>Avg Monthly</span>
-                    <span>650</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-indigo-300 to-indigo-400 rounded-full" style={{width: "65%"}}></div>
-                  </div>
-                </div>
-              </div>
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <p className="text-xs text-green-600 font-bold flex items-center gap-1">
-                  <span className="inline-block w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
-                  +18% from last month
-                </p>
-              </div>
+  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8">
+    {/* Issues Resolved */}
+    <div className="bg-white rounded-3xl p-8 shadow-xl border-2 border-indigo-100 hover:border-indigo-300 transition-all duration-300 hover:shadow-2xl">
+      <div className="flex flex-col items-center text-center mb-6">
+        <div className="p-3 bg-indigo-100 rounded-2xl mb-3">
+          <TrendingUp className="w-8 h-8 text-indigo-600" />
+        </div>
+        <p className="text-4xl md:text-5xl font-black text-gray-900">10K+</p>
+        <p className="text-sm text-gray-500 font-semibold">RESOLVED</p>
+      </div>
+
+      <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">
+        Issues Resolved
+      </h3>
+
+      <div className="space-y-3">
+        {[
+          ["This Month", "850", "85%"],
+          ["Last Month", "720", "72%"],
+          ["Avg Monthly", "650", "65%"],
+        ].map(([label, value, width]) => (
+          <div key={label}>
+            <div className="flex justify-between text-xs text-gray-600 mb-1">
+              <span>{label}</span>
+              <span>{value}</span>
             </div>
-
-            {/* Active Citizens - Speedometer Style */}
-            <div className="bg-white rounded-3xl p-8 shadow-xl border-2 border-purple-100 hover:border-purple-300 transition-all duration-300 hover:shadow-2xl">
-              <div className="flex items-center justify-between mb-6">
-                <div className="p-3 bg-purple-100 rounded-2xl">
-                  <Users className="w-8 h-8 text-purple-600" />
-                </div>
-                <div className="text-right">
-                  <p className="text-4xl md:text-5xl font-black text-gray-900">50K+</p>
-                  <p className="text-sm text-gray-500 font-semibold">ACTIVE</p>
-                </div>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-6">Active Citizens</h3>
-              
-              {/* Speedometer Visual */}
-              <div className="relative w-full aspect-square max-w-[200px] mx-auto">
-                {/* Outer Circle */}
-                <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                  {/* Background Circle */}
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="40"
-                    fill="none"
-                    stroke="#f3f4f6"
-                    strokeWidth="8"
-                  />
-                  {/* Progress Circle */}
-                  <circle
-                    cx="50"
-                    cy="50"
-                    r="40"
-                    fill="none"
-                    stroke="url(#purpleGradient)"
-                    strokeWidth="8"
-                    strokeDasharray="251.2"
-                    strokeDashoffset="62.8"
-                    strokeLinecap="round"
-                    className="transition-all duration-1000"
-                  />
-                  <defs>
-                    <linearGradient id="purpleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#a855f7" />
-                      <stop offset="100%" stopColor="#ec4899" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <p className="text-3xl font-black text-purple-600">75%</p>
-                  <p className="text-xs text-gray-500">Engagement</p>
-                </div>
-              </div>
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <p className="text-xs text-purple-600 font-bold flex items-center gap-1">
-                  <span className="inline-block w-2 h-2 bg-purple-600 rounded-full animate-pulse"></span>
-                  High community engagement
-                </p>
-              </div>
-            </div>
-
-            {/* System Monitoring - Live Gauge */}
-            <div className="bg-white rounded-3xl p-8 shadow-xl border-2 border-pink-100 hover:border-pink-300 transition-all duration-300 hover:shadow-2xl">
-              <div className="flex items-center justify-between mb-6">
-                <div className="p-3 bg-pink-100 rounded-2xl">
-                  <Shield className="w-8 h-8 text-pink-600" />
-                </div>
-                <div className="text-right">
-                  <p className="text-4xl md:text-5xl font-black text-gray-900">24/7</p>
-                  <p className="text-sm text-gray-500 font-semibold">UPTIME</p>
-                </div>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-6">System Monitoring</h3>
-              
-              {/* Live Status Indicators */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded-xl border border-green-200">
-                  <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-semibold text-gray-700">Server Status</span>
-                  </div>
-                  <span className="text-xs font-bold text-green-600">ONLINE</span>
-                </div>
-                
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded-xl border border-green-200">
-                  <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-semibold text-gray-700">Database</span>
-                  </div>
-                  <span className="text-xs font-bold text-green-600">ACTIVE</span>
-                </div>
-                
-                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-xl border border-blue-200">
-                  <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-semibold text-gray-700">Response Time</span>
-                  </div>
-                  <span className="text-xs font-bold text-blue-600">45ms</span>
-                </div>
-              </div>
-              
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <p className="text-xs text-green-600 font-bold flex items-center gap-1">
-                  <span className="inline-block w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
-                  99.9% uptime this month
-                </p>
-              </div>
+            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full"
+                style={{ width }}
+              />
             </div>
           </div>
-        </section>
+        ))}
+      </div>
+
+      <div className="mt-4 pt-4 border-t border-gray-200 text-center">
+        <p className="text-xs text-green-600 font-bold flex items-center justify-center gap-1">
+          <span className="w-2 h-2 bg-green-600 rounded-full animate-pulse" />
+          +18% from last month
+        </p>
+      </div>
+    </div>
+
+    {/* Active Citizens */}
+    <div className="bg-white rounded-3xl p-8 shadow-xl border-2 border-purple-100 hover:border-purple-300 transition-all duration-300 hover:shadow-2xl">
+      <div className="flex flex-col items-center text-center mb-6">
+        <div className="p-3 bg-purple-100 rounded-2xl mb-3">
+          <Users className="w-8 h-8 text-purple-600" />
+        </div>
+        <p className="text-4xl md:text-5xl font-black text-gray-900">50K+</p>
+        <p className="text-sm text-gray-500 font-semibold">ACTIVE</p>
+      </div>
+
+      <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
+        Active Citizens
+      </h3>
+
+      <div className="relative w-full aspect-square max-w-[200px] mx-auto">
+        <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="40" fill="none" stroke="#f3f4f6" strokeWidth="8" />
+          <circle
+            cx="50"
+            cy="50"
+            r="40"
+            fill="none"
+            stroke="#a855f7"
+            strokeWidth="8"
+            strokeDasharray="251.2"
+            strokeDashoffset="62.8"
+            strokeLinecap="round"
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <p className="text-3xl font-black text-purple-600">75%</p>
+          <p className="text-xs text-gray-500">Engagement</p>
+        </div>
+      </div>
+
+      <div className="mt-4 pt-4 border-t border-gray-200 text-center">
+        <p className="text-xs text-purple-600 font-bold flex items-center justify-center gap-1">
+          <span className="w-2 h-2 bg-purple-600 rounded-full animate-pulse" />
+          High community engagement
+        </p>
+      </div>
+    </div>
+
+    {/* System Monitoring */}
+    <div className="bg-white rounded-3xl p-8 shadow-xl border-2 border-pink-100 hover:border-pink-300 transition-all duration-300 hover:shadow-2xl">
+      <div className="flex flex-col items-center text-center mb-6">
+        <div className="p-3 bg-pink-100 rounded-2xl mb-3">
+          <Shield className="w-8 h-8 text-pink-600" />
+        </div>
+        <p className="text-4xl md:text-5xl font-black text-gray-900">24/7</p>
+        <p className="text-sm text-gray-500 font-semibold">UPTIME</p>
+      </div>
+
+      <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
+        System Monitoring
+      </h3>
+
+      <div className="space-y-4">
+        {[
+          ["Server Status", "ONLINE"],
+          ["Database", "ACTIVE"],
+          ["Response Time", "45ms"],
+        ].map(([label, value]) => (
+          <div
+            key={label}
+            className="flex justify-between items-center p-3 rounded-xl border bg-green-50 border-green-200"
+          >
+            <span className="text-sm font-semibold text-gray-700">{label}</span>
+            <span className="text-xs font-bold text-green-600">{value}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-4 pt-4 border-t border-gray-200 text-center">
+        <p className="text-xs text-green-600 font-bold flex items-center justify-center gap-1">
+          <span className="w-2 h-2 bg-green-600 rounded-full animate-pulse" />
+          99.9% uptime this month
+        </p>
+      </div>
+    </div>
+
+    {/* Resolution Velocity */}
+    <div className="bg-white rounded-3xl p-8 shadow-xl border-2 border-emerald-100 hover:border-emerald-300 transition-all duration-300 hover:shadow-2xl">
+      <div className="flex flex-col items-center text-center mb-6">
+        <div className="p-3 bg-emerald-100 rounded-2xl mb-3">
+          <Clock className="w-8 h-8 text-emerald-600" />
+        </div>
+        <p className="text-4xl md:text-5xl font-black text-gray-900">3.2</p>
+        <p className="text-sm text-gray-500 font-semibold">DAYS AVG</p>
+      </div>
+
+      <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">
+        Resolution Velocity
+      </h3>
+
+      <div className="space-y-3">
+        {[
+          ["Current Avg", "3.2 days", "80%"],
+          ["Previous Avg", "4.7 days", "55%"],
+        ].map(([label, value, width]) => (
+          <div key={label}>
+            <div className="flex justify-between text-xs text-gray-600 mb-1">
+              <span>{label}</span>
+              <span>{value}</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full"
+                style={{ width }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-4 pt-4 border-t border-gray-200 text-center">
+        <p className="text-xs text-emerald-600 font-bold flex items-center justify-center gap-1">
+          <span className="w-2 h-2 bg-emerald-600 rounded-full animate-pulse" />
+          32% faster resolution time
+        </p>
+      </div>
+    </div>
+
+    {/* Civic Trust Index */}
+    <div className="bg-white rounded-3xl p-8 shadow-xl border-2 border-sky-100 hover:border-sky-300 transition-all duration-300 hover:shadow-2xl">
+      <div className="flex flex-col items-center text-center mb-6">
+        <div className="p-3 bg-sky-100 rounded-2xl mb-3">
+          <CheckCircle className="w-8 h-8 text-sky-600" />
+        </div>
+        <p className="text-4xl md:text-5xl font-black text-gray-900">88%</p>
+        <p className="text-sm text-gray-500 font-semibold">TRUST</p>
+      </div>
+
+      <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">
+        Civic Trust Index
+      </h3>
+
+      <div className="w-full h-4 rounded-full overflow-hidden bg-gray-200 flex">
+        <div className="bg-sky-500" style={{ width: "46%" }} />
+        <div className="bg-blue-500" style={{ width: "27%" }} />
+        <div className="bg-indigo-500" style={{ width: "15%" }} />
+      </div>
+
+      <div className="flex justify-between text-xs text-gray-500 mt-3">
+        <span>Verified</span>
+        <span>Upvoted</span>
+        <span>Closed</span>
+      </div>
+
+      <div className="mt-4 pt-4 border-t border-gray-200 text-center">
+        <p className="text-xs text-sky-600 font-bold flex items-center justify-center gap-1">
+          <span className="w-2 h-2 bg-sky-600 rounded-full animate-pulse" />
+          Strong citizen confidence
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
 
         {/* Features Highlight */}
        <section className="mt-16 max-w-5xl mx-auto">

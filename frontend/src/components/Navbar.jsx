@@ -52,7 +52,7 @@ const Navbar = () => {
               <Link to="/profile" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 hover:underline decoration-2 decoration-blue-600 underline-offset-4">
                 Profile
               </Link>
-              <Link to="/#" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 hover:underline decoration-2 decoration-blue-600 underline-offset-4">
+              <Link to="/community" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 hover:underline decoration-2 decoration-blue-600 underline-offset-4">
                 Community
               </Link>
               <button

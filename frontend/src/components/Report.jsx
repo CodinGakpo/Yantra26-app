@@ -18,6 +18,7 @@ import "leaflet/dist/leaflet.css";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import { getApiUrl } from "../utils/api";
+import EXIF from "exif-js";
 
 function Report() {
   const [preview, setPreview] = useState(null);
@@ -31,6 +32,8 @@ function Report() {
   const [showMap, setShowMap] = useState(false);
   const [tempLocation, setTempLocation] = useState(null);
   const [tempPosition, setTempPosition] = useState(null);
+  const [isExtractingLocation, setIsExtractingLocation] = useState(false);
+  const [geotagWarning, setGeotagWarning] = useState("");
 
   const [formData, setFormData] = useState({
     issue_title: "",
@@ -68,20 +71,128 @@ function Report() {
     if (user) fetchUserProfile();
   }, [user, getAuthHeaders]);
 
-  const handleFileChange = (e) => {
+  // Convert GPS coordinates from EXIF format to decimal
+  const convertDMSToDD = (degrees, minutes, seconds, direction) => {
+    let dd = degrees + minutes / 60 + seconds / 3600;
+    if (direction === "S" || direction === "W") {
+      dd = dd * -1;
+    }
+    return dd;
+  };
+
+  // Extract geolocation from image EXIF data - IMPROVED VERSION
+  const extractGeolocation = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      reader.onload = function (e) {
+        const image = new Image();
+        image.src = e.target.result;
+        
+        image.onload = function () {
+          EXIF.getData(image, function () {
+            const allTags = EXIF.getAllTags(this);
+            console.log("All EXIF tags:", allTags); // Debug log
+            
+            const lat = EXIF.getTag(this, "GPSLatitude");
+            const latRef = EXIF.getTag(this, "GPSLatitudeRef");
+            const lon = EXIF.getTag(this, "GPSLongitude");
+            const lonRef = EXIF.getTag(this, "GPSLongitudeRef");
+
+            console.log("GPS Data:", { lat, latRef, lon, lonRef }); // Debug log
+
+            if (lat && lon && latRef && lonRef) {
+              const latitude = convertDMSToDD(lat[0], lat[1], lat[2], latRef);
+              const longitude = convertDMSToDD(lon[0], lon[1], lon[2], lonRef);
+              
+              console.log("Converted coordinates:", { latitude, longitude }); // Debug log
+              resolve({ latitude, longitude });
+            } else {
+              reject(new Error("No GPS data found in image"));
+            }
+          });
+        };
+        
+        image.onerror = function () {
+          reject(new Error("Failed to load image"));
+        };
+      };
+      
+      reader.onerror = function () {
+        reject(new Error("Failed to read file"));
+      };
+      
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // Reverse geocode using Nominatim (OpenStreetMap)
+  const reverseGeocode = async (latitude, longitude) => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=en`,
+        {
+          headers: {
+            "User-Agent": "ReportMitra/1.0 (contact@reportmitra.in)",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Reverse geocoding failed");
+      }
+
+      const data = await response.json();
+      return data.display_name || `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+    } catch (error) {
+      console.error("Reverse geocoding error:", error);
+      // Fallback to coordinates if reverse geocoding fails
+      return `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+    }
+  };
+
+  const handleFileChange = async (e) => {
     const file = e.target.files && e.target.files[0];
     if (file) {
       setSelectedFile(file);
       setPreview(URL.createObjectURL(file));
       setFormData((p) => ({ ...p, image_url: "" }));
       setErrors((p) => ({ ...p, image: "" }));
+      setGeotagWarning("");
+
+      // Extract geolocation from image
+      setIsExtractingLocation(true);
+      try {
+        const { latitude, longitude } = await extractGeolocation(file);
+        
+        console.log("Successfully extracted GPS:", { latitude, longitude }); // Debug log
+        
+        // Get human-readable address
+        const address = await reverseGeocode(latitude, longitude);
+        
+        console.log("Geocoded address:", address); // Debug log
+        
+        // Update form data and map position
+        setFormData((p) => ({ ...p, location: address }));
+        setTempPosition([latitude, longitude]);
+        setTempLocation(address);
+        
+        setGeotagWarning("");
+      } catch (error) {
+        console.error("Geolocation extraction error:", error);
+        setGeotagWarning("⚠️ No GPS data found in image. Please use the map to select location.");
+        setFormData((p) => ({ ...p, location: "" }));
+      } finally {
+        setIsExtractingLocation(false);
+      }
     } else {
       if (preview) {
         URL.revokeObjectURL(preview);
       }
       setSelectedFile(null);
       setPreview(null);
-      setFormData((p) => ({ ...p, image_url: "" }));
+      setFormData((p) => ({ ...p, image_url: "", location: "" }));
+      setGeotagWarning("");
     }
   };
 
@@ -235,26 +346,20 @@ function Report() {
 
       const response = await fetch(getApiUrl("/reports/"), {
         method: "POST",
-        headers: { ...headers, "Content-Type": "application/json" },
+        headers: {
+          ...headers,
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        let errDetail = "Failed to submit report";
-        try {
-          const errJson = await response.json();
-          errDetail = errJson.detail || JSON.stringify(errJson);
-        } catch {
-          const errText = await response.text().catch(() => null);
-          if (errText) errDetail = errText;
-        }
-        throw new Error(errDetail);
+        const errorText = await response.text();
+        console.error("Error response:", errorText);
+        throw new Error("Failed to submit report");
       }
 
       const result = await response.json();
-      if (import.meta.env.DEV) {
-        console.log("Report submit result:", result);
-      }
       setApplicationId(result.tracking_id);
       setShowSuccessPopup(true);
 
@@ -263,141 +368,97 @@ function Report() {
         location: "",
         issue_description: "",
         image_url: "",
-        department: "",
       });
       setSelectedFile(null);
       setPreview(null);
-      const fileInput = document.getElementById("fileInput");
-      if (fileInput) fileInput.value = "";
-    } catch (err) {
-      console.error("Submit error:", err);
-      if (err.message?.includes("issue_title")) {
-        setErrors((p) => ({ ...p, issue_title: "Issue title is required" }));
-      }
-      if (err.message?.includes("issue_description")) {
-        setErrors((p) => ({
-          ...p,
-          issue_description: "Issue description is required",
-        }));
-      }
+      setGeotagWarning("");
+    } catch (error) {
+      console.error("Submission error:", error);
+      alert("An error occurred while submitting the report. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const getCurrentDate = () => new Date().toISOString().split("T")[0];
-
-  const closePopup = () => {
-    setShowSuccessPopup(false);
-    setApplicationId(null);
-  };
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(applicationId);
-    alert("Application ID copied to clipboard!");
-  };
-
-  const aadhaar = userProfile?.aadhaar || null;
-  let firstNameDisplay = "Not provided";
-  let middleNameDisplay = "N/A";
-  let lastNameDisplay = "Not provided";
-
-  if (!userProfile) {
-    firstNameDisplay = middleNameDisplay = lastNameDisplay = "Loading...";
-  } else if (aadhaar) {
-    let firstName = aadhaar.first_name || "";
-    let middleName = aadhaar.middle_name || "";
-    let lastName = aadhaar.last_name || "";
-
-    if ((!firstName || !lastName) && aadhaar.full_name) {
-      const parts = aadhaar.full_name.trim().split(/\s+/);
-      if (parts.length === 1) {
-        firstName = firstName || parts[0];
-      } else if (parts.length === 2) {
-        firstName = firstName || parts[0];
-        lastName = lastName || parts[1];
-      } else if (parts.length >= 3) {
-        firstName = firstName || parts[0];
-        lastName = lastName || parts[parts.length - 1];
-        middleName = middleName || parts.slice(1, -1).join(" ");
-      }
-    }
-
-    firstNameDisplay = firstName || "Not provided";
-    middleNameDisplay = middleName || "N/A";
-    lastNameDisplay = lastName || "Not provided";
-  }
-
-  const markerIcon = new L.Icon({
-    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-  });
-
-  function LocationPicker({ onSelect, position }) {
+  const MapClickHandler = () => {
     useMapEvents({
       click: async (e) => {
         const { lat, lng } = e.latlng;
-        onSelect(lat, lng);
+        setTempPosition([lat, lng]);
+
+        // Reverse geocode the clicked position
+        try {
+          const address = await reverseGeocode(lat, lng);
+          setTempLocation(address);
+        } catch (error) {
+          console.error("Error getting address:", error);
+          setTempLocation(`${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+        }
       },
     });
+    return null;
+  };
 
-    return position ? <Marker position={position} icon={markerIcon} /> : null;
-  }
+  const handleMapConfirm = () => {
+    if (tempLocation && tempPosition) {
+      setFormData((p) => ({ ...p, location: tempLocation }));
+      setShowMap(false);
+      setErrors((p) => ({ ...p, location: "" }));
+      setGeotagWarning("");
+    }
+  };
+
+  const handleMapCancel = () => {
+    setShowMap(false);
+    setTempLocation(null);
+    setTempPosition(null);
+  };
+
+  const getCurrentDate = () => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  const firstNameDisplay = userProfile?.first_name || "Loading...";
+  const middleNameDisplay = userProfile?.middle_name || "N/A";
+  const lastNameDisplay = userProfile?.last_name || "Loading...";
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(applicationId);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
       {showUnverifiedPopup && (
-        <div className="fixed inset-0 bg-black flex items-center justify-center z-50 p-6 overflow-y-auto">
-          <div className="max-w-2xl w-full text-white my-8">
-
-            <div className="flex justify-center mb-6">
-              <div className="w-20 h-20">
-                <img
-                  src={Logo}
-                  alt="ReportMitra Logo"
-                  className="w-full h-full object-contain"
-                />
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="bg-red-100 p-2 rounded-full">
+                <AlertCircle className="w-6 h-6 text-red-600" />
               </div>
+              <h2 className="text-xl font-bold text-gray-900">
+                Verification Required
+              </h2>
             </div>
-
-            <h1 className="text-3xl md:text-4xl font-bold text-center mb-6">
-              Verification Required
-            </h1>
-
-            <div className="space-y-6 text-base md:text-lg leading-relaxed">
-              <p className="text-gray-300 text-center">
-                You must complete{" "}
-                <strong className="text-white">Aadhaar verification</strong>{" "}
-                before submitting reports. This ensures authenticity and
-                prevents platform misuse.
-              </p>
-
-              <div className="border-t border-gray-700 pt-6">
-                <h2 className="text-xl font-bold mb-4 text-center">
-                  Why verification matters
-                </h2>
-                <p className="text-gray-300 text-center leading-relaxed">
-                  Aadhaar verification links your identity to every report you
-                  submit, ensuring that all reports come from real, verified
-                  citizens. This prevents spam and fake reports, creates
-                  accountability between the community and government, and
-                  complies with mandatory government regulations for civic
-                  reporting platforms. Your verified identity builds trust in
-                  the system while protecting it from misuse.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-4 mt-8">
+            <p className="text-gray-600 mb-6">
+              You must complete Aadhaar verification before submitting a report.
+              Please verify your identity to continue.
+            </p>
+            <div className="flex gap-3">
               <button
-                onClick={() => {
-                  window.location.href = "/profile";
-                }}
-                className="bg-white text-black py-3 px-6 rounded-lg font-bold text-lg hover:bg-gray-200 transition-all duration-200 cursor-pointer"
+                onClick={() => setShowUnverifiedPopup(false)}
+                className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => (window.location.href = "/profile")}
+                className="flex-1 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition"
               >
                 Verify Now
               </button>
@@ -407,139 +468,122 @@ function Report() {
       )}
 
       {showSuccessPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 md:p-8 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">
-                <img src={Tick} alt="" className="" />
-              </span>
-            </div>
-
-            <h2 className="text-2xl font-bold text-green-600 mb-3">
-              Report Submitted Successfully!
-            </h2>
-
-            <p className="text-green-600 font-bold mb-4">
-              Your report has been submitted and is now under review.
-            </p>
-
-            <div className="border-3 border-dashed border-green-600 rounded-lg p-4 mb-6">
-              <p className="text-2xl text-green-600 mb-2 font-extrabold">
-                Application ID for tracking
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full">
+            <div className="flex flex-col items-center text-center">
+              <div className="bg-green-100 p-4 rounded-full mb-4">
+                <img src={Tick} alt="Success" className="w-12 h-12" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                Report Submitted Successfully!
+              </h2>
+              <p className="text-gray-600 mb-4">
+                Your issue has been registered. Please save your tracking ID:
               </p>
-              <div className="flex items-center justify-center">
-                <div className="flex">
-                  <code className="bg-green-200  border-2 px-3 text-2xl font-bold text-green-700 border-green-600 py-2 rounded-l-md flex items-center">
+
+              <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-4 w-full mb-4">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-lg font-bold text-gray-900">
                     {applicationId}
-                  </code>
+                  </span>
                   <button
-                    onClick={copyToClipboard}
-                    className="text-white  border-2 border-green-600 transition py-2 px-3 cursor-pointer rounded-r-md bg-green-600"
+                    onClick={handleCopy}
+                    className="p-2 hover:bg-gray-200 rounded transition"
                     title="Copy to clipboard"
                   >
-                    <img src={Copy} alt="" className="h-7" />
+                    <img src={Copy} alt="Copy" className="w-5 h-5" />
                   </button>
                 </div>
               </div>
-            </div>
 
-            <div className="flex flex-col gap-3">
-              <button
-                onClick={closePopup}
-                className="bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition cursor-pointer"
-              >
-                Continue
-              </button>
+              <p className="text-sm text-gray-500 mb-6">
+                Use this ID to track your report status
+              </p>
+
               <button
                 onClick={() => {
-                  closePopup();
-                  window.location.href = `/track`;
+                  setShowSuccessPopup(false);
+                  setApplicationId(null);
                 }}
-                className="text-green-600 hover:text-green-700 underline hover:scale-110 cursor-pointer transition font-bold"
+                className="w-full px-6 py-3 bg-black text-white rounded-md hover:bg-gray-800 transition font-semibold"
               >
-                Track this report
+                Close
               </button>
             </div>
           </div>
         </div>
       )}
-      {showMap && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white rounded-xl w-full max-w-3xl p-4">
-            <h2 className="text-xl font-bold mb-3 text-center">
-              Choose Issue Location
-            </h2>
 
-            <div className="h-[400px] rounded-lg overflow-hidden">
+      {showMap && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="p-4 border-b flex justify-between items-center">
+              <h2 className="text-xl font-bold text-gray-900">
+                Select Issue Location
+              </h2>
+              <button
+                onClick={handleMapCancel}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="flex-1 relative">
               <MapContainer
-                center={[20.5937, 78.9629]}
-                zoom={5}
+                center={tempPosition || [11.0168, 76.9558]}
+                zoom={13}
                 className="h-full w-full"
               >
-                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                <LocationPicker
-                  position={tempPosition}
-                  // onSelect={async (lat, lng) => {
-                  //   setTempPosition([lat, lng]);
-
-                  //   try {
-                  //     // const res = await fetch(
-                  //     //   `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&accept-language=en`,
-                  //     //   { headers: { "User-Agent": "ReportMitra/1.0" } }
-                  //     // );
-                  //     const data = await res.json();
-                  //     setTempLocation(data.display_name || `${lat}, ${lng}`);
-                  //   } catch {
-                  //     setTempLocation(`${lat}, ${lng}`);
-                  //   }
-                  // }}
-                  onSelect={async (lat, lng) => {
-                  setTempPosition([lat, lng]);
-
-                  try {
-                    const res = await fetch(
-                      `http://localhost:8000/reverse-geocode/?lat=${lat}&lon=${lng}`
-                    );
-
-                    if (!res.ok) throw new Error("Reverse geocoding failed");
-
-                    const data = await res.json();
-                    setTempLocation(data.display_name || `${lat}, ${lng}`);
-                  } catch (err) {
-                    console.error(err);
-                    setTempLocation(`${lat}, ${lng}`);
-                  }
-                }}
-
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
+                <MapClickHandler />
+                {tempPosition && (
+                  <Marker
+                    position={tempPosition}
+                    icon={L.icon({
+                      iconUrl:
+                        "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+                      iconSize: [25, 41],
+                      iconAnchor: [12, 41],
+                    })}
+                  />
+                )}
               </MapContainer>
             </div>
 
-            {tempLocation && (
-              <button
-                onClick={() => {
-                  setFormData((p) => ({ ...p, location: tempLocation }));
-                  setErrors((p) => ({ ...p, location: "" }));
-                  setTempLocation(null);
-                  setTempPosition(null);
-                  setShowMap(false);
-                }}
-                className="mt-3 w-full bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-green-700 transition"
-              >
-                Confirm Location
-              </button>
-            )}
+            <div className="p-4 border-t space-y-3">
+              {tempLocation ? (
+                <div className="bg-gray-50 p-3 rounded-md">
+                  <p className="text-sm font-semibold text-gray-700 mb-1">
+                    Selected Location:
+                  </p>
+                  <p className="text-sm text-gray-600">{tempLocation}</p>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500 text-center">
+                  Click on the map to select a location
+                </p>
+              )}
 
-            <button
-              onClick={() => {
-                setTempLocation(null);
-                setTempPosition(null);
-                setShowMap(false);
-              }}
-              className="mt-4 w-full bg-black text-white py-2 rounded-lg font-bold"
-            >
-              Cancel
-            </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleMapCancel}
+                  className="flex-1 px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleMapConfirm}
+                  disabled={!tempLocation}
+                  className="flex-1 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Confirm Location
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -663,13 +707,22 @@ function Report() {
                 className="md:col-span-2 flex flex-col font-bold space-y-4
   bg-gray-50 border rounded-xl p-4 h-full"
               >
-                <label>Issue Image</label>
+                <div className="flex items-center justify-between">
+                  <label>Issue Image (Geotagged)</label>
+                  {isExtractingLocation && (
+                    <span className="text-xs text-blue-600 animate-pulse">
+                      📍 Extracting...
+                    </span>
+                  )}
+                </div>
                 <a
                   href="https://www.precisely.com/glossary/geotagging/"
                   className="underline text-sm text-blue-700 -mt-1"
                   target="_blank"
                   rel="noopener noreferrer"
-                ></a>
+                >
+                  What is geotagging?
+                </a>
 
                 <div
                   className="border-2 border-dashed border-gray-300 rounded-xl
@@ -717,6 +770,16 @@ function Report() {
                       {selectedFile.name}
                     </span>
                   )}
+                  {geotagWarning && (
+                    <div className="bg-orange-50 border border-orange-200 rounded-md p-2">
+                      <p className="text-orange-600 text-xs font-normal text-center">
+                        {geotagWarning}
+                      </p>
+                      <p className="text-orange-500 text-xs text-center mt-1">
+                        💡 Tip: Use your phone's camera app to take photos with location enabled
+                      </p>
+                    </div>
+                  )}
                   {errors.image && (
                     <p className="text-red-600 text-sm font-normal text-center">
                       {errors.image}
@@ -734,6 +797,11 @@ function Report() {
                 <label className="whitespace-nowrap flex items-center gap-1">
                   <MapPin className="w-4 h-4 text-gray-600" />
                   Issue Location
+                  {formData.location && !geotagWarning && (
+                    <span className="text-xs font-normal text-green-600 ml-2">
+                      ✓ Auto-detected from image
+                    </span>
+                  )}
                 </label>
 
                 <div className="flex gap-2 w-full">
@@ -743,7 +811,7 @@ function Report() {
                     value={formData.location}
                     readOnly
                     required
-                    placeholder="Choose location from map"
+                    placeholder="Auto-detected from geotagged image or use map"
                     className="border px-3 py-2 rounded-md w-full
       bg-gray-100 text-gray-600 cursor-not-allowed"
                   />

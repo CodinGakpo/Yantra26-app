@@ -3,7 +3,7 @@ import { useAuth } from "../AuthProvider";
 import { Link } from "react-router-dom";
 import logo_1 from "../assets/logo-1.png";
 import logo_2 from "../assets/logo-2.png";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Leaf } from "lucide-react";
 
 const Navbar = () => {
   const { loginWithEmail, loginWithGoogle, register, logout, isAuthenticated, isLoading } = useAuth();
@@ -17,9 +17,9 @@ const Navbar = () => {
 
   if (isLoading) {
     return (
-      <header className="bg-white border-b-2 border-blue-100 shadow-md w-full fixed top-0 left-0 z-50">
-        <div className="max-w-screen-xl mx-auto flex justify-between items-center px-4 py-4">
-          <div className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">NagrikMitra</div>
+      <header className="bg-white border-b border-emerald-100 shadow-sm w-full fixed top-0 left-0 z-50">
+        <div className="max-w-7xl mx-auto flex justify-between items-center px-4 py-4">
+          <div className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">NagrikMitra</div>
           <div className="text-gray-600">Loading...</div>
         </div>
       </header>
@@ -27,37 +27,63 @@ const Navbar = () => {
   }
 
   return (
-    <header className="bg-white/95 backdrop-blur-md border-b-2 border-blue-100 shadow-lg w-full fixed top-0 left-0 z-50">
-      <div className="max-w-screen-xl mx-auto flex justify-between items-center px-4 py-2">
+    <header className="bg-white/98 backdrop-blur-md border-b border-emerald-100 shadow-sm w-full fixed top-0 left-0 z-50">
+      <div className="max-w-7xl mx-auto flex justify-between items-center px-4 sm:px-6 lg:px-8 py-3">
+        {/* Logo */}
         <Link
           to="/"
-          className="flex items-center gap-2 font-bold py-1 hover:opacity-80 transition"
+          className="flex items-center gap-3 font-bold py-1 hover:opacity-90 transition-opacity group"
         >
-          <img src={logo_1} alt="logo" className="w-12 h-12 sm:w-16 sm:h-16" />
-          <img src={logo_2} alt="logo" className="h-8 sm:h-12" />
+          {/* 
+            NEW LOGO NEEDED - See LOGO_PROMPT.md for AI generation prompt
+            For now, using a green leaf icon as placeholder
+          */}
+          <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
+            <Leaf className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-xl sm:text-2xl font-black text-gray-900 leading-tight">NagrikMitra</span>
+            <span className="text-[10px] sm:text-xs font-semibold text-emerald-600 leading-tight tracking-wide">CIVIC | CONNECT | RESOLVE</span>
+          </div>
         </Link>
 
-        <nav className="hidden md:flex items-center font-semibold text-lg lg:text-xl gap-6">
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center font-semibold text-base lg:text-lg gap-6 lg:gap-8">
           {isAuthenticated ? (
             <>
-              <Link to="/report" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 hover:underline decoration-2 decoration-blue-600 underline-offset-4">
+              <Link 
+                to="/report" 
+                className="text-gray-700 hover:text-emerald-600 transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-emerald-600 after:transition-all hover:after:w-full"
+              >
                 Report
               </Link>
-              <Link to="/track" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 hover:underline decoration-2 decoration-blue-600 underline-offset-4">
+              <Link 
+                to="/track" 
+                className="text-gray-700 hover:text-emerald-600 transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-emerald-600 after:transition-all hover:after:w-full"
+              >
                 Track
               </Link>
-              <Link to="/history" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 hover:underline decoration-2 decoration-blue-600 underline-offset-4">
+              <Link 
+                to="/history" 
+                className="text-gray-700 hover:text-emerald-600 transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-emerald-600 after:transition-all hover:after:w-full"
+              >
                 History
               </Link>
-              <Link to="/profile" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 hover:underline decoration-2 decoration-blue-600 underline-offset-4">
+              <Link 
+                to="/profile" 
+                className="text-gray-700 hover:text-emerald-600 transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-emerald-600 after:transition-all hover:after:w-full"
+              >
                 Profile
               </Link>
-              <Link to="/community" className="text-gray-700 hover:text-blue-600 transition-colors duration-200 hover:underline decoration-2 decoration-blue-600 underline-offset-4">
+              <Link 
+                to="/community" 
+                className="text-gray-700 hover:text-emerald-600 transition-colors duration-200 relative after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-emerald-600 after:transition-all hover:after:w-full"
+              >
                 Community
               </Link>
               <button
                 onClick={handleLogout}
-                className="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md font-semibold"
               >
                 Logout
               </button>
@@ -66,13 +92,13 @@ const Navbar = () => {
             <>
               <button
                 onClick={handleLogin}
-                className="text-gray-700 hover:text-blue-600 transition-colors duration-200 hover:underline decoration-2 decoration-blue-600 underline-offset-4"
+                className="text-gray-700 hover:text-emerald-600 transition-colors duration-200 font-semibold"
               >
                 Login
               </button>
               <button
                 onClick={handleRegister}
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md font-semibold"
               >
                 Sign Up
               </button>
@@ -80,8 +106,9 @@ const Navbar = () => {
           )}
         </nav>
 
+        {/* Mobile Menu Button */}
         <button
-          className="md:hidden flex items-center justify-center w-10 h-10 rounded-md hover:bg-blue-50 transition text-gray-700"
+          className="md:hidden flex items-center justify-center w-10 h-10 rounded-lg hover:bg-emerald-50 transition text-gray-700"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle menu"
         >
@@ -89,9 +116,10 @@ const Navbar = () => {
         </button>
       </div>
 
+      {/* Mobile Menu */}
       <div
-        className={`md:hidden bg-white border-t border-blue-100 text-gray-700 font-semibold text-base flex flex-col items-center gap-4 overflow-hidden transition-all duration-300 ${
-          menuOpen ? "max-h-96 py-4" : "max-h-0 py-0"
+        className={`md:hidden bg-white border-t border-emerald-100 text-gray-700 font-semibold text-base flex flex-col items-center gap-4 overflow-hidden transition-all duration-300 ${
+          menuOpen ? "max-h-96 py-6" : "max-h-0 py-0"
         }`}
       >
         {isAuthenticated ? (
@@ -99,35 +127,35 @@ const Navbar = () => {
             <Link
               to="/report"
               onClick={() => setMenuOpen(false)}
-              className="hover:text-blue-600 transition-colors"
+              className="hover:text-emerald-600 transition-colors w-full text-center py-2 hover:bg-emerald-50 rounded"
             >
               Report
             </Link>
             <Link
               to="/track"
               onClick={() => setMenuOpen(false)}
-              className="hover:text-blue-600 transition-colors"
+              className="hover:text-emerald-600 transition-colors w-full text-center py-2 hover:bg-emerald-50 rounded"
             >
               Track
             </Link>
             <Link
               to="/history"
               onClick={() => setMenuOpen(false)}
-              className="hover:text-blue-600 transition-colors"
+              className="hover:text-emerald-600 transition-colors w-full text-center py-2 hover:bg-emerald-50 rounded"
             >
               History
             </Link>
             <Link
               to="/profile"
               onClick={() => setMenuOpen(false)}
-              className="hover:text-blue-600 transition-colors"
+              className="hover:text-emerald-600 transition-colors w-full text-center py-2 hover:bg-emerald-50 rounded"
             >
               Profile
             </Link>
             <Link
               to="/community"
               onClick={() => setMenuOpen(false)}
-              className="hover:text-blue-600 transition-colors"
+              className="hover:text-emerald-600 transition-colors w-full text-center py-2 hover:bg-emerald-50 rounded"
             >
               Community
             </Link>
@@ -136,7 +164,7 @@ const Navbar = () => {
                 handleLogout();
                 setMenuOpen(false);
               }}
-              className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-2 rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-md"
+              className="bg-red-500 hover:bg-red-600 text-white px-8 py-2.5 rounded-lg transition-all duration-200 shadow-sm"
             >
               Logout
             </button>
@@ -148,7 +176,7 @@ const Navbar = () => {
                 handleLogin();
                 setMenuOpen(false);
               }}
-              className="hover:text-blue-600 transition-colors"
+              className="hover:text-emerald-600 transition-colors"
             >
               Login
             </button>
@@ -157,7 +185,7 @@ const Navbar = () => {
                 handleRegister();
                 setMenuOpen(false);
               }}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-md"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-2.5 rounded-lg transition-all duration-200 shadow-sm"
             >
               Sign Up
             </button>

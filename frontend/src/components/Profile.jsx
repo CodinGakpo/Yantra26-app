@@ -292,7 +292,7 @@ function Profile() {
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Aadhaar Number
                     </label>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <input
                         type="text"
                         value={aadhaarNumber}
@@ -305,7 +305,7 @@ function Profile() {
                       <button
                         onClick={verifyAadhaar}
                         disabled={isVerifying || profileData.isVerified}
-                        className={`px-6 py-3 rounded-lg font-bold transition-all shadow-sm ${
+                        className={`px-6 py-3 rounded-lg font-bold transition-all shadow-sm whitespace-nowrap ${
                           profileData.isVerified
                             ? "bg-green-600 text-white cursor-not-allowed"
                             : isVerifying

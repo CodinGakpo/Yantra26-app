@@ -786,7 +786,7 @@ function Report() {
                       <MapPin className="w-4 h-4 text-emerald-600" />
                       Issue Location <span className="text-red-500">*</span>
                     </label>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <input
                         type="text"
                         name="location"
@@ -799,7 +799,7 @@ function Report() {
                       <button
                         type="button"
                         onClick={() => setShowMap(true)}
-                        className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition-all shadow-sm hover:shadow-md"
+                        className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold transition-all shadow-sm hover:shadow-md whitespace-nowrap"
                       >
                         Select on Map
                       </button>

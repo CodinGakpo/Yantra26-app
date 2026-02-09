@@ -1,0 +1,45 @@
+# Blockchain app - ignore sensitive and build files
+
+# Environment and secrets
+.env
+*.key
+*.pem
+secrets.json
+
+# Contract build artifacts
+contracts/build/
+*.bin
+*.abi
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Logs
+*.log
+logs/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node modules (if using node for Solidity)
+node_modules/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Temporary files
+*.tmp
+temp/

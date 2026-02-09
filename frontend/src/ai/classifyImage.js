@@ -1,5 +1,5 @@
 // frontend/src/ai/classifyImage.js
-// Updated to use the backend ML model API
+// Updated to use the backend ML model API and return full response
 
 import { getApiUrl } from "../utils/api";
 
@@ -7,7 +7,7 @@ import { getApiUrl } from "../utils/api";
  * Classify an image using the backend ML model
  * @param {string} imageBase64 - Base64 encoded image (with or without data URL prefix)
  * @param {Function} getAuthHeaders - Function to get authentication headers
- * @returns {Promise<string>} - Predicted department name
+ * @returns {Promise<Object>} - Response object with department, confidence, and is_valid
  */
 export async function classifyImage(imageBase64, getAuthHeaders = null) {
   try {
@@ -37,7 +37,12 @@ export async function classifyImage(imageBase64, getAuthHeaders = null) {
       
       // Log the error but don't throw - fall back to "Manual"
       console.warn("Falling back to Manual classification due to ML API error");
-      return "Manual";
+      return {
+        department: "Manual",
+        confidence: 0,
+        is_valid: true, // Allow manual submission
+        reason: "API_ERROR"
+      };
     }
 
     const result = await response.json();
@@ -46,27 +51,30 @@ export async function classifyImage(imageBase64, getAuthHeaders = null) {
       console.log("ML Prediction Result:", {
         department: result.department,
         confidence: result.confidence,
+        is_valid: result.is_valid,
+        reason: result.reason,
         allProbabilities: result.all_probabilities,
       });
     }
 
-    // Return the predicted department
-    // If confidence is too low, you could return "Manual" instead
-    const CONFIDENCE_THRESHOLD = 0.3; // Adjust as needed
-    
-    if (result.confidence < CONFIDENCE_THRESHOLD) {
-      console.warn(
-        `Low confidence (${result.confidence.toFixed(2)}), defaulting to Manual`
-      );
-      return "Manual";
-    }
-
-    return result.department || "Manual";
+    // Return the full response object
+    return {
+      department: result.department || "Manual",
+      confidence: result.confidence || 0,
+      is_valid: result.is_valid !== false, // Default to true if not specified
+      reason: result.reason || null,
+      all_probabilities: result.all_probabilities || {}
+    };
     
   } catch (error) {
     console.error("Error calling ML classification API:", error);
     // Fall back to "Manual" if the API call fails
-    return "Manual";
+    return {
+      department: "Manual",
+      confidence: 0,
+      is_valid: true, // Allow manual submission
+      reason: "NETWORK_ERROR"
+    };
   }
 }
 

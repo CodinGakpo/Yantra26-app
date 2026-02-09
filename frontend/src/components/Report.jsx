@@ -1,12 +1,9 @@
 //Report.jsx - Beautiful UI with Working ML Integration
 import { useState, useEffect } from "react";
 import Navbar from "./MiniNavbar";
-import folder from "../assets/foldericon.png";
 import { useAuth } from "../AuthProvider";
 import Footer from "./Footer";
-import Tick from "../assets/tick.png";
-import Copy from "../assets/copy.jpg";
-import Logo from "../assets/logo-1.png";
+
 import { classifyImage } from "../ai/classifyImage";
 import { useMap } from "react-leaflet";
 import {
@@ -38,7 +35,7 @@ function Report() {
   const [tempLocation, setTempLocation] = useState(null);
   const [tempPosition, setTempPosition] = useState(null);
   const [copiedId, setCopiedId] = useState(false);
-
+  const [showInvalidPopup, setShowInvalidPopup] = useState(false);
   const INDIA_CENTER = [20.5937, 78.9629];
   const [mapCenter, setMapCenter] = useState(INDIA_CENTER);
   const [mapZoom, setMapZoom] = useState(5);
@@ -256,7 +253,23 @@ function Report() {
         try {
           setIsClassifying(true);
           const base64 = await fileToBase64(selectedFile);
-          department = await classifyImage(base64, getAuthHeaders);
+          const mlResult = await classifyImage(base64, getAuthHeaders);
+            /**
+             * classifyImage currently returns department string.
+             * We now support object responses for compatibility.
+             */
+            if (typeof mlResult === "object") {
+              if (mlResult.is_valid === false) {
+                setIsClassifying(false);
+                setIsSubmitting(false);
+                setShowInvalidPopup(true);
+                return; // ⛔ stop report submission
+              }
+              department = mlResult.department || "Manual";
+            } else {
+              // backward compatibility
+              department = mlResult;
+            }
           if (import.meta.env.DEV) {
             console.log("AI Department:", department);
           }
@@ -476,6 +489,35 @@ function Report() {
                 Track this report
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* Invalid Popup */}
+      {showInvalidPopup && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center">
+            
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                <AlertCircle className="w-10 h-10 text-red-600" />
+              </div>
+            </div>
+
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Invalid Report
+            </h2>
+
+            <p className="text-gray-600 mb-6">
+              The uploaded image could not be clearly classified.
+              Please upload a clearer image or try again.
+            </p>
+
+            <button
+              onClick={() => setShowInvalidPopup(false)}
+              className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-semibold transition-all"
+            >
+              Okay
+            </button>
           </div>
         </div>
       )}

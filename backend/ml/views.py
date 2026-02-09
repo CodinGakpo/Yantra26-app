@@ -21,6 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent
 # Paths to model files
 MODEL_PATH = BASE_DIR / "model" / "civic_issue_imgmodel (1).keras"
 CLASS_INDICES_PATH = BASE_DIR / "model" / "class_indices.json"
+CONFIDENCE_THRESHOLD = 0.45
 
 # Global variables to store the loaded model
 _model = None
@@ -119,6 +120,8 @@ def predict_department(request):
         {
             "department": "Public Works Department",
             "confidence": 0.95,
+            "is_valid": true,
+            "reason": null,
             "all_probabilities": {
                 "Public Works Department": 0.95,
                 "Water Board Department": 0.03,
@@ -149,15 +152,23 @@ def predict_department(request):
         )
     
     try:
+        print("🟢 Starting image classification...")
+        
         # Preprocess the image
         processed_image = preprocess_image(image_base64)
+        print("🟢 Image preprocessed successfully")
         
         # Make prediction
         predictions = _model.predict(processed_image, verbose=0)
+        print("🟢 Prediction completed")
         
         # Get the predicted class index
         predicted_index = np.argmax(predictions[0])
         confidence = float(predictions[0][predicted_index])
+        
+        # Print confidence score to terminal
+        print(f"🟢 Confidence Score: {confidence:.4f} ({confidence*100:.2f}%)")
+        print(f"🟢 Predicted Index: {predicted_index}")
         
         # Get the department name
         predicted_department = _index_to_department.get(
@@ -165,22 +176,45 @@ def predict_department(request):
             "Manual"
         )
         
+        # Check if prediction is valid based on confidence threshold
+        is_valid = confidence >= CONFIDENCE_THRESHOLD
+        
+        if not is_valid:
+            print(f"⚠️  Low confidence ({confidence:.4f}) - below threshold ({CONFIDENCE_THRESHOLD})")
+            predicted_department = "Manual"
+        else:
+            print(f"✓ Valid prediction: {predicted_department}")
+        
         # Create probability dictionary for all departments
         all_probabilities = {
             _index_to_department.get(i, f"Unknown_{i}"): float(predictions[0][i])
             for i in range(len(predictions[0]))
         }
         
+        # Print top 3 predictions
+        sorted_probs = sorted(all_probabilities.items(), key=lambda x: x[1], reverse=True)[:3]
+        print("🟢 Top 3 Predictions:")
+        for dept, prob in sorted_probs:
+            print(f"   - {dept}: {prob:.4f} ({prob*100:.2f}%)")
+
+        response_data = {
+            "department": predicted_department,
+            "confidence": confidence,
+            "all_probabilities": all_probabilities,
+            "is_valid": is_valid,
+            "reason": None if is_valid else "LOW_CONFIDENCE"
+        }
+        
+        print(f"🟢 Response: department={predicted_department}, is_valid={is_valid}")
+        print("-" * 60)
+        
         return Response(
-            {
-                "department": predicted_department,
-                "confidence": confidence,
-                "all_probabilities": all_probabilities
-            },
+            response_data,
             status=status.HTTP_200_OK
         )
-        
+    
     except ValueError as ve:
+        print(f"❌ ValueError: {ve}")
         return Response(
             {
                 "error": "Invalid image",
@@ -189,6 +223,9 @@ def predict_department(request):
             status=status.HTTP_400_BAD_REQUEST
         )
     except Exception as e:
+        print(f"❌ Prediction error: {e}")
+        import traceback
+        traceback.print_exc()
         return Response(
             {
                 "error": "Prediction failed",

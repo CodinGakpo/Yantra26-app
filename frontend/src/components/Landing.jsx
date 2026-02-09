@@ -263,7 +263,7 @@ const Landing = () => {
     </p>
   </div>
 
-  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-8">
+  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
     {/* Issues Resolved */}
     <div className="bg-white rounded-3xl p-8 shadow-xl border-2 border-indigo-100 hover:border-indigo-300 transition-all duration-300 hover:shadow-2xl">
       <div className="flex flex-col items-center text-center mb-6">
@@ -430,39 +430,7 @@ const Landing = () => {
       </div>
     </div>
 
-    {/* Civic Trust Index */}
-    <div className="bg-white rounded-3xl p-8 shadow-xl border-2 border-sky-100 hover:border-sky-300 transition-all duration-300 hover:shadow-2xl">
-      <div className="flex flex-col items-center text-center mb-6">
-        <div className="p-3 bg-sky-100 rounded-2xl mb-3">
-          <CheckCircle className="w-8 h-8 text-sky-600" />
-        </div>
-        <p className="text-4xl md:text-5xl font-black text-gray-900">88%</p>
-        <p className="text-sm text-gray-500 font-semibold">TRUST</p>
-      </div>
-
-      <h3 className="text-xl font-bold text-gray-900 mb-4 text-center">
-        Civic Trust Index
-      </h3>
-
-      <div className="w-full h-4 rounded-full overflow-hidden bg-gray-200 flex">
-        <div className="bg-sky-500" style={{ width: "46%" }} />
-        <div className="bg-blue-500" style={{ width: "27%" }} />
-        <div className="bg-indigo-500" style={{ width: "15%" }} />
-      </div>
-
-      <div className="flex justify-between text-xs text-gray-500 mt-3">
-        <span>Verified</span>
-        <span>Upvoted</span>
-        <span>Closed</span>
-      </div>
-
-      <div className="mt-4 pt-4 border-t border-gray-200 text-center">
-        <p className="text-xs text-sky-600 font-bold flex items-center justify-center gap-1">
-          <span className="w-2 h-2 bg-sky-600 rounded-full animate-pulse" />
-          Strong citizen confidence
-        </p>
-      </div>
-    </div>
+   
   </div>
 </section>
 

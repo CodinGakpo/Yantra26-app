@@ -154,10 +154,8 @@ def presign_get_for_track(request, id):
             after_url = None
 
     return Response({
-        # OLD CONTRACT (IssueDetails.jsx)
         "url": before_url,
 
-        # NEW CONTRACT (Community PostCard.jsx)
         "before": before_url,
         "after": after_url,
     })

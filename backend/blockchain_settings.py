@@ -7,6 +7,14 @@ Add these settings to your settings.py or create a new blockchain_settings.py
 import os
 from pathlib import Path
 
+# Get BASE_DIR if it exists, otherwise compute it
+try:
+    # BASE_DIR should be set by base.py before this import
+    BASE_DIR
+except NameError:
+    # Fallback: compute BASE_DIR relative to this file
+    BASE_DIR = Path(__file__).resolve().parent
+
 # ============ Blockchain Configuration ============
 
 # Enable/disable blockchain features
@@ -20,7 +28,7 @@ BLOCKCHAIN_WS_URL = os.getenv('BLOCKCHAIN_WS_URL', '')
 BLOCKCHAIN_CONTRACT_ADDRESS = os.getenv('BLOCKCHAIN_CONTRACT_ADDRESS', '')
 BLOCKCHAIN_CONTRACT_ABI_PATH = os.getenv(
     'BLOCKCHAIN_CONTRACT_ABI_PATH',
-    os.path.join(BASE_DIR, 'blockchain/contracts/build/ComplaintRegistry_abi.json')
+    str(Path(BASE_DIR) / 'blockchain/contracts/build/ComplaintRegistry_abi.json')
 )
 
 # Private Key (use AWS Secrets Manager in production)
@@ -40,10 +48,10 @@ BLOCKCHAIN_EXPLORER_URL = os.getenv('BLOCKCHAIN_EXPLORER_URL', 'https://ethersca
 # ============ Local File Storage Configuration ============
 
 # Local file upload directory for evidence files (replaces IPFS)
-LOCAL_FILE_UPLOAD_DIR = os.getenv('LOCAL_FILE_UPLOAD_DIR', os.path.join(BASE_DIR, 'media/uploads'))
+LOCAL_FILE_UPLOAD_DIR = os.getenv('LOCAL_FILE_UPLOAD_DIR', str(Path(BASE_DIR) / 'media/uploads'))
 
 # Media files configuration (for Django to serve uploaded files)
-MEDIA_ROOT = os.getenv('MEDIA_ROOT', os.path.join(BASE_DIR, 'media'))
+MEDIA_ROOT = os.getenv('MEDIA_ROOT', str(Path(BASE_DIR) / 'media'))
 MEDIA_URL = os.getenv('MEDIA_URL', '/media/')
 
 # ============ Celery Configuration ============
@@ -80,15 +88,6 @@ CELERY_TASK_TIME_LIMIT = 30 * 60  # 30 minutes
 
 COMPLAINT_SLA_HOURS = int(os.getenv('COMPLAINT_SLA_HOURS', '48'))
 
-# ============ Installed Apps ============
-
-# Add to INSTALLED_APPS
-INSTALLED_APPS = [
-    # ... your existing apps ...
-    'blockchain',
-    'model_utils',  # For field tracking
-]
-
 # ============ Logging Configuration ============
 
 LOGGING = {
@@ -105,15 +104,16 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'verbose',
         },
-        'blockchain_file': {
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs/blockchain.log'),
-            'formatter': 'verbose',
-        },
+        # File handler disabled by default - uncomment and create logs/ directory if needed
+        # 'blockchain_file': {
+        #     'class': 'logging.FileHandler',
+        #     'filename': str(Path(BASE_DIR) / 'logs/blockchain.log'),
+        #     'formatter': 'verbose',
+        # },
     },
     'loggers': {
         'blockchain': {
-            'handlers': ['console', 'blockchain_file'],
+            'handlers': ['console'],  # Add 'blockchain_file' if file logging enabled
             'level': 'INFO',
             'propagate': False,
         },

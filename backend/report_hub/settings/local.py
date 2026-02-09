@@ -43,3 +43,35 @@ DATABASES = {
 #         },
 #     }
 # }
+
+# ============ Import Blockchain Settings ============
+# Import blockchain settings from backend root
+import sys
+from pathlib import Path
+backend_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(backend_root))
+
+try:
+    from blockchain_settings import *
+except ImportError:
+    # If blockchain_settings doesn't exist, define minimal required settings
+    BLOCKCHAIN_ENABLED = False
+    BLOCKCHAIN_NODE_URL = ''
+    BLOCKCHAIN_CONTRACT_ADDRESS = ''
+    BLOCKCHAIN_CONTRACT_ABI_PATH = str(BASE_DIR / 'blockchain/contracts/build/ComplaintRegistry_abi.json')
+    BLOCKCHAIN_PRIVATE_KEY = ''
+    BLOCKCHAIN_GAS_LIMIT = 500000
+    BLOCKCHAIN_GAS_PRICE_MULTIPLIER = 1.1
+    BLOCKCHAIN_TX_TIMEOUT = 120
+    BLOCKCHAIN_USE_POA = False
+    BLOCKCHAIN_EXPLORER_URL = 'https://etherscan.io'
+    
+    # Local file storage
+    LOCAL_FILE_UPLOAD_DIR = str(BASE_DIR / 'media/uploads')
+    
+    # Celery (optional)
+    CELERY_BROKER_URL = 'redis://localhost:6379/0'
+    CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+    
+    # SLA config
+    COMPLAINT_SLA_HOURS = 48

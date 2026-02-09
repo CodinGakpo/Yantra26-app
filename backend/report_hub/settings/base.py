@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'user_profile',
     'report',
     'aadhaar',
+    'blockchain',
 ]
 
 CORS_ALLOW_ALL_ORIGINS = False

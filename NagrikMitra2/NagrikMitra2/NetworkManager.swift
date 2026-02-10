@@ -1,0 +1,325 @@
+//
+//  NetworkManager.swift
+//  NagrikMitra2
+//
+//  Network layer for API communication
+//
+
+import Foundation
+
+enum NetworkError: Error, LocalizedError {
+    case invalidURL
+    case noData
+    case decodingError
+    case serverError(String)
+    case unauthorized
+    case networkError(Error)
+    
+    var errorDescription: String? {
+        switch self {
+        case .invalidURL:
+            return "Invalid URL"
+        case .noData:
+            return "No data received"
+        case .decodingError:
+            return "Failed to decode response"
+        case .serverError(let message):
+            return message
+        case .unauthorized:
+            return "Unauthorized. Please login again."
+        case .networkError(let error):
+            return error.localizedDescription
+        }
+    }
+}
+
+class NetworkManager {
+    static let shared = NetworkManager()
+    
+    private init() {}
+    
+    // MARK: - Generic Request
+    func request<T: Decodable>(
+        endpoint: String,
+        method: String = "GET",
+        body: Data? = nil,
+        authenticated: Bool = false
+    ) async throws -> T {
+        guard let url = URL(string: APIConfig.apiURL + endpoint) else {
+            throw NetworkError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        if authenticated, let token = getAccessToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
+        if let body = body {
+            request.httpBody = body
+        }
+        
+        do {
+            let (data, response) = try await URLSession.shared.data(for: request)
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw NetworkError.noData
+            }
+            
+            if httpResponse.statusCode == 401 {
+                throw NetworkError.unauthorized
+            }
+            
+            if !(200...299).contains(httpResponse.statusCode) {
+                if let errorResponse = try? JSONDecoder().decode([String: String].self, from: data),
+                   let errorMessage = errorResponse["error"] ?? errorResponse["detail"] {
+                    throw NetworkError.serverError(errorMessage)
+                }
+                throw NetworkError.serverError("Server error: \(httpResponse.statusCode)")
+            }
+            
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            
+            do {
+                return try decoder.decode(T.self, from: data)
+            } catch {
+                print("Decoding error: \(error)")
+                print("Response data: \(String(data: data, encoding: .utf8) ?? "nil")")
+                throw NetworkError.decodingError
+            }
+        } catch let error as NetworkError {
+            throw error
+        } catch {
+            throw NetworkError.networkError(error)
+        }
+    }
+    
+    // MARK: - Authentication Helpers
+    private func getAccessToken() -> String? {
+        return UserDefaults.standard.string(forKey: "accessToken")
+    }
+    
+    // MARK: - Image Upload
+    func uploadImage(_ imageData: Data) async throws -> String {
+        // Get presigned URL
+        struct PresignResponse: Codable {
+            let url: String
+            let fields: [String: String]
+            let fileUrl: String
+            
+            enum CodingKeys: String, CodingKey {
+                case url
+                case fields
+                case fileUrl = "file_url"
+            }
+        }
+        
+        let presignResponse: PresignResponse = try await request(
+            endpoint: APIConfig.Endpoints.presignS3,
+            method: "POST",
+            authenticated: true
+        )
+        
+        // Upload to S3
+        guard let url = URL(string: presignResponse.url) else {
+            throw NetworkError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        
+        let boundary = UUID().uuidString
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        
+        var body = Data()
+        
+        // Add fields
+        for (key, value) in presignResponse.fields {
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n".data(using: .utf8)!)
+            body.append("\(value)\r\n".data(using: .utf8)!)
+        }
+        
+        // Add file
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"image.jpg\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+        body.append(imageData)
+        body.append("\r\n".data(using: .utf8)!)
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+        
+        request.httpBody = body
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw NetworkError.serverError("Failed to upload image")
+        }
+        
+        return presignResponse.fileUrl
+    }
+}
+
+// MARK: - API Methods
+extension NetworkManager {
+    // MARK: - Auth
+    func login(email: String, password: String) async throws -> LoginResponse {
+        let body = try JSONEncoder().encode([
+            "email": email,
+            "password": password
+        ])
+        
+        return try await request(
+            endpoint: APIConfig.Endpoints.login,
+            method: "POST",
+            body: body
+        )
+    }
+    
+    func register(email: String, password: String, confirmPassword: String) async throws -> LoginResponse {
+        let body = try JSONEncoder().encode([
+            "email": email,
+            "password": password,
+            "password2": confirmPassword
+        ])
+        
+        return try await request(
+            endpoint: APIConfig.Endpoints.register,
+            method: "POST",
+            body: body
+        )
+    }
+    
+    func getCurrentUser() async throws -> User {
+        return try await request(
+            endpoint: APIConfig.Endpoints.currentUser,
+            authenticated: true
+        )
+    }
+    
+    // MARK: - Reports
+    func submitReport(title: String, location: String, description: String, imageUrl: String?) async throws -> Report {
+        struct ReportSubmission: Encodable {
+            let issueTitle: String
+            let location: String
+            let issueDescription: String
+            let imageUrl: String?
+            
+            enum CodingKeys: String, CodingKey {
+                case issueTitle = "issue_title"
+                case location
+                case issueDescription = "issue_description"
+                case imageUrl = "image_url"
+            }
+        }
+        
+        let submission = ReportSubmission(
+            issueTitle: title,
+            location: location,
+            issueDescription: description,
+            imageUrl: imageUrl
+        )
+        
+        let body = try JSONEncoder().encode(submission)
+        
+        return try await request(
+            endpoint: APIConfig.Endpoints.reports,
+            method: "POST",
+            body: body,
+            authenticated: true
+        )
+    }
+    
+    func getReportByTrackingId(_ trackingId: String) async throws -> Report {
+        let baseURL = APIConfig.baseURL
+        guard let url = URL(string: baseURL + APIConfig.Endpoints.trackingDetail(trackingId)) else {
+            throw NetworkError.invalidURL
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw NetworkError.noData
+        }
+        
+        if !(200...299).contains(httpResponse.statusCode) {
+            throw NetworkError.serverError("Report not found")
+        }
+        
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return try decoder.decode(Report.self, from: data)
+    }
+    
+    func getCommunityPosts(nextUrl: String? = nil) async throws -> CommunityResponse {
+        if let nextUrl = nextUrl {
+            // Parse the full URL and extract just the path
+            guard let url = URL(string: nextUrl),
+                  let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+                throw NetworkError.invalidURL
+            }
+            
+            let path = components.path.replacingOccurrences(of: "/api", with: "")
+            let query = components.query ?? ""
+            let endpoint = query.isEmpty ? path : "\(path)?\(query)"
+            
+            return try await request(endpoint: endpoint)
+        } else {
+            return try await request(endpoint: APIConfig.Endpoints.communityResolved)
+        }
+    }
+    
+    func getUserHistory() async throws -> [Report] {
+        struct HistoryResponse: Decodable {
+            let results: [Report]
+        }
+        
+        let response: HistoryResponse = try await request(
+            endpoint: APIConfig.Endpoints.userHistory,
+            authenticated: true
+        )
+        return response.results
+    }
+    
+    // MARK: - Profile
+    func getUserProfile() async throws -> UserProfile {
+        return try await request(
+            endpoint: APIConfig.Endpoints.profile,
+            authenticated: true
+        )
+    }
+    
+    func verifyAadhaar(aadhaarNumber: String) async throws -> AadhaarVerificationResponse {
+        let body = try JSONEncoder().encode([
+            "aadhaar_number": aadhaarNumber
+        ])
+        
+        return try await request(
+            endpoint: APIConfig.Endpoints.verifyAadhaar,
+            method: "POST",
+            body: body,
+            authenticated: true
+        )
+    }
+}
+
+// MARK: - Response Models
+struct CommunityResponse: Codable {
+    let count: Int
+    let next: String?
+    let previous: String?
+    let results: [Report]
+}
+
+struct AadhaarVerificationResponse: Codable {
+    let success: Bool
+    let message: String
+    let data: AadhaarData?
+}

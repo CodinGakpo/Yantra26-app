@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'user_profile',
     'report',
     'aadhaar',
+    'ml',
     'blockchain',
 ]
 

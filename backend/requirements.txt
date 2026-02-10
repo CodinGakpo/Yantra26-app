@@ -22,6 +22,9 @@ urllib3==2.5.0
 google-auth==2.41.1
 google-auth-httplib2==0.3.0
 google-auth-oauthlib==1.2.3
+tensorflow==2.19.0
+pillow==12.1.0
+numpy<2.2.0
 
 
 # Blockchain Integration - Required Python Packages

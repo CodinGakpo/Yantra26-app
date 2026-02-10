@@ -1,77 +1,97 @@
-export async function classifyImage(imageUrl) {
-  const prompt = `
-        You are an image classification assistant for a civics-issue reporting system.
-        Given an image, identify the single most relevant department responsible for addressing the primary issue shown.
+// frontend/src/ai/classifyImage.js
+// Updated to use the backend ML model API and return full response
 
-        Allowed departments (choose only ONE):
+import { getApiUrl } from "../utils/api";
 
-        1. Public Works Department
-        Handles ONLY:
-        - Structural damage to roads, streets, footpaths, bridges, flyovers, culverts
-        - Broken or collapsed concrete or asphalt surfaces
-        - Construction defects related strictly to public transport infrastructure
+/**
+ * Classify an image using the backend ML model
+ * @param {string} imageBase64 - Base64 encoded image (with or without data URL prefix)
+ * @param {Function} getAuthHeaders - Function to get authentication headers
+ * @returns {Promise<Object>} - Response object with department, confidence, and is_valid
+ */
+export async function classifyImage(imageBase64, getAuthHeaders = null) {
+  try {
+    // Prepare headers
+    const headers = {
+      "Content-Type": "application/json",
+    };
 
-        Does NOT handle water, sewage, garbage, or traffic control equipment.
+    // Add auth headers if available
+    if (getAuthHeaders && typeof getAuthHeaders === "function") {
+      const authHeaders = await getAuthHeaders();
+      Object.assign(headers, authHeaders);
+    }
 
-        2. Water Board Department
-        Handles ONLY:
-        - Drinking water supply infrastructure
-        - Freshwater pipeline leaks or bursts
-        - Overflowing or damaged clean-water pipes
-        - Tanker water supply issues
+    // Call the backend ML prediction endpoint
+    const response = await fetch(getApiUrl("/ml/predict/"), {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify({
+        image_base64: imageBase64,
+      }),
+    });
 
-        Does NOT handle sewage, drains, stormwater, garbage, or road damage.
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error("ML prediction failed:", errorData);
+      
+      // Log the error but don't throw - fall back to "Manual"
+      console.warn("Falling back to Manual classification due to ML API error");
+      return {
+        department: "Manual",
+        confidence: 0,
+        is_valid: true, // Allow manual submission
+        reason: "API_ERROR"
+      };
+    }
 
-        3. Sewage and Drainage Department
-        Handles ONLY:
-        - Sewage lines and manholes
-        - Wastewater overflow
-        - Blocked or overflowing underground drainage systems
-        - Open sewage flowing on roads or into drains
+    const result = await response.json();
 
-        Does NOT handle clean water pipes, garbage, or road repair.
+    if (import.meta.env.DEV) {
+      console.log("ML Prediction Result:", {
+        department: result.department,
+        confidence: result.confidence,
+        is_valid: result.is_valid,
+        reason: result.reason,
+        allProbabilities: result.all_probabilities,
+      });
+    }
 
-        4. Sanitation Department
-        Handles ONLY:
-        - Garbage accumulation or littering
-        - Overflowing or missing waste bins
-        - Illegal dumping of solid waste
-        - Street sweeping and cleanliness issues
+    // Return the full response object
+    return {
+      department: result.department || "Manual",
+      confidence: result.confidence || 0,
+      is_valid: result.is_valid !== false, // Default to true if not specified
+      reason: result.reason || null,
+      all_probabilities: result.all_probabilities || {}
+    };
+    
+  } catch (error) {
+    console.error("Error calling ML classification API:", error);
+    // Fall back to "Manual" if the API call fails
+    return {
+      department: "Manual",
+      confidence: 0,
+      is_valid: true, // Allow manual submission
+      reason: "NETWORK_ERROR"
+    };
+  }
+}
 
-        Does NOT handle sewage water, pipelines, traffic equipment, or structural road damage.
+/**
+ * Get a user-friendly department name
+ * @param {string} department - Internal department name
+ * @returns {string} - Display-friendly department name
+ */
+export function getDepartmentDisplayName(department) {
+  const departmentMap = {
+    "Public Works Department": "Public Works Department (PWD)",
+    "Water Board Department": "Water Board",
+    "Sewage and Drainage Department": "Sewage & Drainage",
+    "Sanitation Department": "Sanitation",
+    "Traffic Department": "Traffic",
+    "Manual": "Manual Classification",
+  };
 
-        5. Traffic Department
-        Handles ONLY:
-        - Traffic signals and signal poles
-        - Road signs and signboards
-        - Lane markings, barricades, dividers, cones, reflectors
-        - Traffic-related safety equipment
-
-        Does NOT handle road surface damage, water, sewage, or garbage.
-
-        Critical Rules:
-        - Return ONLY the department name exactly as listed above
-        - Do NOT include explanations, probabilities, or additional text
-        - Identify the dominant and most visible issue in the image
-        - Ignore secondary or background issues
-
-        Overlap Resolution (use ONLY if unavoidable):
-        If an issue appears to fall under multiple departments, select the department in the following narrow-to-broad priority order:
-        1. Traffic Department
-        2. Sanitation Department
-        3. Sewerage & Drainage Department
-        4. Water Board
-        5. Public Works Department (PWD)
-
-        Output format:
-        <department name>
-`;
-
-  const response = await puter.ai.chat(prompt, imageUrl, { model: "gpt-5-nano" });
-
-  const dept =
-    response?.message?.content?.trim() ||
-    response?.choices?.[0]?.message?.content?.trim();
-
-  return dept || "Manual";
+  return departmentMap[department] || department;
 }

@@ -41,6 +41,7 @@ The app follows the same design language as the web frontend with:
 ### 1. Backend Setup
 
 First, ensure your Django backend is running:
+Backend server = https://github.com/dibyajyoti-chakrabarti/devsoc26
 
 ```bash
 cd backend

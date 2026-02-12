@@ -321,7 +321,7 @@ extension NetworkManager {
         )
     }
     
-    func verifyAadhaar(aadhaarNumber: String) async throws -> AadhaarVerificationResponse {
+    func verifyAadhaar(aadhaarNumber: String) async throws -> VerifyAadhaarResponse {
         let body = try JSONEncoder().encode([
             "aadhaar_number": aadhaarNumber
         ])

@@ -8,6 +8,7 @@
 import Foundation
 
 // MARK: - User & Auth
+
 struct User: Codable, Identifiable {
     let id: Int
     let email: String
@@ -30,13 +31,14 @@ struct LoginResponse: Codable {
     let message: String?
     let user: User
     let tokens: AuthTokens
-    
-    // Convenience computed properties for backward compatibility
+
+    // Backward compatibility
     var access: String { tokens.access }
     var refresh: String { tokens.refresh }
 }
 
 // MARK: - Report
+
 struct Report: Codable, Identifiable {
     let id: Int
     let user: Int?
@@ -52,18 +54,27 @@ struct Report: Codable, Identifiable {
     let department: String?
     let confidenceScore: Double?
     let allocatedTo: String?
-    
+
     // Backward compatibility
     var createdAt: String { issueDate ?? updatedAt }
 }
 
 // MARK: - Profile
+
 struct UserProfile: Codable {
     let id: Int
     let isAadhaarVerified: Bool
     let aadhaar: AadhaarData?
     let createdAt: String?
     let updatedAt: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case isAadhaarVerified = "is_aadhaar_verified"
+        case aadhaar
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+    }
 }
 
 struct AadhaarData: Codable {
@@ -77,13 +88,57 @@ struct AadhaarData: Codable {
     let gender: String?
     let phoneNumber: String?
     let createdAt: String?
-    
-    // Backward compatibility
+
+    enum CodingKeys: String, CodingKey {
+        case aadhaarNumber = "aadhaar_number"
+        case fullName = "full_name"
+        case firstName = "first_name"
+        case middleName = "middle_name"
+        case lastName = "last_name"
+        case dateOfBirth = "date_of_birth"
+        case address
+        case gender
+        case phoneNumber = "phone_number"
+        case createdAt = "created_at"
+    }
+
+    // Backward compatibility helpers
     var midName: String? { middleName }
     var phone: String? { phoneNumber }
 }
 
+// MARK: - Aadhaar Verification Response
+
+struct VerifyAadhaarResponse: Codable {
+    let verified: Bool
+    let aadhaarNumber: String?
+    let aadhaar: AadhaarData?
+    let profile: AadhaarProfile?
+    let error: String?
+
+    enum CodingKeys: String, CodingKey {
+        case verified
+        case aadhaarNumber = "aadhaar_number"
+        case aadhaar
+        case profile
+        case error
+    }
+}
+
+struct AadhaarProfile: Codable {
+    let isAadhaarVerified: Bool
+    let createdAt: String
+    let updatedAt: String
+
+    enum CodingKeys: String, CodingKey {
+        case isAadhaarVerified = "is_aadhaar_verified"
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+    }
+}
+
 // MARK: - Stats
+
 struct AppStats {
     let issuesResolved: String
     let activeCitizens: String
@@ -92,6 +147,7 @@ struct AppStats {
 }
 
 // MARK: - ML Prediction
+
 struct MLPredictionResponse: Codable {
     let department: String
     let confidence: Double
@@ -113,16 +169,8 @@ struct MLTextResult: Codable {
     let intent: String?
 }
 
-// MARK: - Aadhaar Verification
-struct AadhaarVerificationResponse: Codable {
-    let verified: Bool
-    let aadhaarNumber: String?
-    let error: String?
-    let aadhaar: AadhaarData?
-    let profile: UserProfile?
-}
-
 // MARK: - S3 Upload
+
 struct S3PresignResponse: Codable {
     let url: String
     let key: String
@@ -134,6 +182,7 @@ struct S3PresignRequest: Codable {
 }
 
 // MARK: - Blockchain
+
 struct BlockchainStatusResponse: Codable {
     let trackingId: String
     let blockchainVerified: Bool
@@ -169,4 +218,3 @@ struct SLAStatus: Codable {
     let daysElapsed: Int
     let daysRemaining: Int
 }
-

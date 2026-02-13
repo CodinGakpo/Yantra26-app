@@ -20,6 +20,19 @@ struct User: Codable, Identifiable {
     let googleId: String?
     let profilePicture: String?
     let dateJoined: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case email
+        case username
+        case firstName = "first_name"
+        case lastName = "last_name"
+        case isEmailVerified = "is_email_verified"
+        case authMethod = "auth_method"
+        case googleId = "google_id"
+        case profilePicture = "profile_picture"
+        case dateJoined = "date_joined"
+    }
 }
 
 struct AuthTokens: Codable {
@@ -54,6 +67,23 @@ struct Report: Codable, Identifiable {
     let department: String?
     let confidenceScore: Double?
     let allocatedTo: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case user
+        case issueTitle = "issue_title"
+        case location
+        case issueDescription = "issue_description"
+        case imageUrl = "image_url"
+        case completionUrl = "completion_url"
+        case issueDate = "issue_date"
+        case status
+        case updatedAt = "updated_at"
+        case trackingId = "tracking_id"
+        case department
+        case confidenceScore = "confidence_score"
+        case allocatedTo = "allocated_to"
+    }
 
     // Backward compatibility
     var createdAt: String { issueDate ?? updatedAt }
@@ -156,6 +186,16 @@ struct MLPredictionResponse: Codable {
     let reason: String?
     let imageResult: MLResult?
     let textResult: MLTextResult?
+    
+    enum CodingKeys: String, CodingKey {
+        case department
+        case confidence
+        case isValid = "is_valid"
+        case method
+        case reason
+        case imageResult = "image_result"
+        case textResult = "text_result"
+    }
 }
 
 struct MLResult: Codable {
@@ -179,6 +219,11 @@ struct S3PresignResponse: Codable {
 struct S3PresignRequest: Codable {
     let fileName: String
     let contentType: String
+    
+    enum CodingKeys: String, CodingKey {
+        case fileName = "file_name"
+        case contentType = "content_type"
+    }
 }
 
 // MARK: - Blockchain
@@ -191,6 +236,16 @@ struct BlockchainStatusResponse: Codable {
     let events: [BlockchainEvent]?
     let evidence: [BlockchainEvidence]?
     let slaStatus: SLAStatus?
+    
+    enum CodingKeys: String, CodingKey {
+        case trackingId = "tracking_id"
+        case blockchainVerified = "blockchain_verified"
+        case slaEscalated = "sla_escalated"
+        case latestTxHash = "latest_tx_hash"
+        case events
+        case evidence
+        case slaStatus = "sla_status"
+    }
 }
 
 struct BlockchainEvent: Codable {
@@ -200,6 +255,15 @@ struct BlockchainEvent: Codable {
     let timestamp: String?
     let status: String?
     let explorerUrl: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case eventType = "event_type"
+        case txHash = "tx_hash"
+        case blockNumber = "block_number"
+        case timestamp
+        case status
+        case explorerUrl = "explorer_url"
+    }
 }
 
 struct BlockchainEvidence: Codable {
@@ -211,10 +275,27 @@ struct BlockchainEvidence: Codable {
     let verified: Bool
     let blockTimestamp: Int?
     let createdAt: String
+    
+    enum CodingKeys: String, CodingKey {
+        case fileName = "file_name"
+        case filePath = "file_path"
+        case fileUrl = "file_url"
+        case fileHash = "file_hash"
+        case txHash = "tx_hash"
+        case verified
+        case blockTimestamp = "block_timestamp"
+        case createdAt = "created_at"
+    }
 }
 
 struct SLAStatus: Codable {
     let withinSla: Bool
     let daysElapsed: Int
     let daysRemaining: Int
+    
+    enum CodingKeys: String, CodingKey {
+        case withinSla = "within_sla"
+        case daysElapsed = "days_elapsed"
+        case daysRemaining = "days_remaining"
+    }
 }

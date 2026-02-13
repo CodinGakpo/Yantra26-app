@@ -7,6 +7,8 @@
 
 import Foundation
 import CoreLocation
+import MapKit
+import Contacts
 import Combine
 
 class LocationManager: NSObject, ObservableObject {
@@ -42,29 +44,27 @@ class LocationManager: NSObject, ObservableObject {
     }
     
     func reverseGeocode(location: CLLocation) async throws -> String {
-        let geocoder = CLGeocoder()
-        let placemarks = try await geocoder.reverseGeocodeLocation(location)
+        let searchRequest = MKLocalSearch.Request()
+        searchRequest.region = MKCoordinateRegion(
+            center: location.coordinate,
+            span: MKCoordinateSpan(latitudeDelta: 0.001, longitudeDelta: 0.001)
+        )
+        searchRequest.resultTypes = .address
         
-        guard let placemark = placemarks.first else {
+        let search = MKLocalSearch(request: searchRequest)
+        let response = try await search.start()
+        
+        guard let mapItem = response.mapItems.first else {
             throw LocationError.noAddress
         }
         
-        var addressComponents: [String] = []
-        
-        if let name = placemark.name {
-            addressComponents.append(name)
-        }
-        if let locality = placemark.locality {
-            addressComponents.append(locality)
-        }
-        if let administrativeArea = placemark.administrativeArea {
-            addressComponents.append(administrativeArea)
-        }
-        if let postalCode = placemark.postalCode {
-            addressComponents.append(postalCode)
+        // Use the formatted address from mapItem
+        if let name = mapItem.name {
+            return name
         }
         
-        return addressComponents.joined(separator: ", ")
+        // Fallback to coordinates if no formatted address
+        return "\(location.coordinate.latitude), \(location.coordinate.longitude)"
     }
 }
 

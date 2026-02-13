@@ -81,7 +81,7 @@ class NetworkManager {
             }
             
             let decoder = JSONDecoder()
-            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            // Note: Not using .convertFromSnakeCase because models have explicit CodingKeys
             
             do {
                 return try decoder.decode(T.self, from: data)

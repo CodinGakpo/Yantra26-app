@@ -26,7 +26,7 @@ class GoogleSignInManager {
     
     /// Sign in with Google and return ID token
     func signIn() async throws -> String {
-        guard let presentingViewController = await getRootViewController() else {
+        guard let presentingViewController = getRootViewController() else {
             throw GoogleSignInError.noViewController
         }
         

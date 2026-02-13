@@ -16,8 +16,12 @@ struct TrackView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 24) {
+            ZStack {
+                Theme.Colors.background
+                    .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 24) {
                     // Header
                     VStack(spacing: 12) {
                         Image(systemName: "magnifyingglass.circle.fill")
@@ -90,8 +94,10 @@ struct TrackView: View {
                             .padding(.horizontal)
                     }
                 }
+                .padding(.bottom, 20)
             }
-            .background(Theme.Colors.background)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationBarTitleDisplayMode(.inline)
             .alert("Error", isPresented: $showError) {
                 Button("OK", role: .cancel) {}

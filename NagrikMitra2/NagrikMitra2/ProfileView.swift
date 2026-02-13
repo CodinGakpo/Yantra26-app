@@ -24,8 +24,12 @@ struct ProfileView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 24) {
+            ZStack {
+                Theme.Colors.background
+                    .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 24) {
                     // Header
                     VStack(spacing: 16) {
                         Circle()
@@ -209,8 +213,10 @@ struct ProfileView: View {
                     .padding(.horizontal)
                     .padding(.bottom)
                 }
+                .padding(.bottom, 20)
             }
-            .background(Theme.Colors.background)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationBarTitleDisplayMode(.inline)
             .refreshable {
                 await loadData()

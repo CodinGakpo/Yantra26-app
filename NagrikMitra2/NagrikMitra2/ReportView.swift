@@ -26,8 +26,12 @@ struct ReportView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 24) {
+            ZStack {
+                Theme.Colors.background
+                    .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 24) {
                     // Header
                     VStack(spacing: 12) {
                         Image(systemName: "exclamationmark.bubble.fill")
@@ -164,10 +168,12 @@ struct ReportView: View {
                     .background(Theme.Colors.surface)
                     .cornerRadius(16)
                     .shadow(color: .black.opacity(0.05), radius: 8, y: 2)
-                    .padding()
+                        .padding()
+                    }
+                    .padding(.bottom, 20)
                 }
             }
-            .background(Theme.Colors.background)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationBarTitleDisplayMode(.inline)
             .alert("Success!", isPresented: $showSuccess) {
                 Button("OK") {

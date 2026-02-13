@@ -11,8 +11,9 @@ struct LandingView: View {
     @Binding var showLogin: Bool
     
     var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
+        GeometryReader { geometry in
+            ScrollView {
+                VStack(spacing: 0) {
                 // Hero Section
                 VStack(spacing: 24) {
                     // Logo
@@ -108,7 +109,6 @@ struct LandingView: View {
                             title: "Report Issues",
                             description: "Snap a photo of civic problems in your area - potholes, broken streets, garbage, or any infrastructure issue."
                         )
-                        
                         FeatureRow(
                             icon: "magnifyingglass",
                             title: "Track Progress",
@@ -129,10 +129,14 @@ struct LandingView: View {
                     }
                     .padding(.horizontal)
                 }
-                .padding(.bottom, 60)
+                    .padding(.bottom, 60)
+                }
+                .frame(minHeight: geometry.size.height)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .background(Theme.Colors.background)
+        .background(Theme.Colors.background.ignoresSafeArea())
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 

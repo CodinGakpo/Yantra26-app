@@ -16,8 +16,12 @@ struct CommunityView: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                LazyVStack(spacing: 16) {
+            ZStack {
+                Theme.Colors.background
+                    .ignoresSafeArea()
+                
+                ScrollView {
+                    LazyVStack(spacing: 16) {
                     // Header
                     VStack(spacing: 12) {
                         Image(systemName: "person.3.fill")
@@ -75,7 +79,8 @@ struct CommunityView: View {
                 }
                 .padding(.vertical)
             }
-            .background(Theme.Colors.background)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationBarTitleDisplayMode(.inline)
             .refreshable {
                 await refresh()

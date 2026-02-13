@@ -34,12 +34,13 @@ struct LoginView: View {
     }
     
     var body: some View {
-        ZStack {
-            // Background gradient
-            Theme.Gradients.heroGradient
-                .ignoresSafeArea()
-            
-            ScrollView {
+        GeometryReader { geometry in
+            ZStack {
+                // Background gradient
+                Theme.Gradients.heroGradient
+                    .ignoresSafeArea()
+                
+                ScrollView {
                 VStack(spacing: 32) {
                     // Header
                     VStack(spacing: 16) {
@@ -210,11 +211,15 @@ struct LoginView: View {
                     .padding(24)
                     .background(Color.white.opacity(0.1))
                     .cornerRadius(16)
-                    .padding(.horizontal)
+                        .padding(.horizontal)
+                    }
+                    .frame(minHeight: geometry.size.height)
                 }
+                .scrollDismissesKeyboard(.interactively)
             }
-            .scrollDismissesKeyboard(.interactively)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .alert("Error", isPresented: $showError) {
             Button("OK", role: .cancel) {}
         } message: {

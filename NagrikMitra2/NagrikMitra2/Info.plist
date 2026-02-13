@@ -2,52 +2,13 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- ============================================ -->
-	<!-- PRIVACY PERMISSIONS                          -->
-	<!-- Required for app features to work properly   -->
-	<!-- ============================================ -->
-	
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>NagrikMitra needs your location to automatically detect and report civic issues in your area.</string>
-	
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>NagrikMitra needs access to your photos to attach evidence to issue reports.</string>
-	
-	<key>NSCameraUsageDescription</key>
-	<string>NagrikMitra needs access to your camera to capture photos of civic issues.</string>
-	
-	
-	<!-- ============================================ -->
-	<!-- GOOGLE SIGN-IN CONFIGURATION                 -->
-	<!-- Setup Instructions:                          -->
-	<!-- ============================================ -->
-	<!-- 
-	1. Go to: https://console.cloud.google.com/
-	2. Create/Select your project
-	3. Enable "Google Sign-In API"
-	4. Go to: Credentials > Create Credentials > OAuth client ID
-	5. Select "iOS" as application type
-	6. Enter Bundle ID: avadhoot.NagrikMitra2
-	7. Copy the Client ID (looks like: 123456789-abc123.apps.googleusercontent.com)
-	8. Replace YOUR_CLIENT_ID below with your actual Client ID
-	-->
-	
-	<key>GIDClientID</key>
-	<string>YOUR_CLIENT_ID.apps.googleusercontent.com</string>
-	
-	
-	<!-- ============================================ -->
-	<!-- URL SCHEMES FOR OAUTH CALLBACK               -->
-	<!-- ============================================ -->
-	<!-- 
-	IMPORTANT: Replace YOUR_CLIENT_ID in the URL scheme below
-	
-	If your Client ID is: 123456789-abc123def456.apps.googleusercontent.com
-	Then URL scheme should be: com.googleusercontent.apps.123456789-abc123def456
-	
-	(It's the reversed format of your client ID)
-	-->
-	
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -57,33 +18,24 @@
 			<string>Google Sign-In</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.YOUR_CLIENT_ID</string>
+				<string>com.googleusercontent.apps.752960336374-fo6psf8nulrubsc567v18sck4psm03jo</string>
 			</array>
 		</dict>
 	</array>
-	
-	
-	<!-- ============================================ -->
-	<!-- APP TRANSPORT SECURITY                       -->
-	<!-- Allow API connections                        -->
-	<!-- ============================================ -->
-	
+	<key>GIDClientID</key>
+	<string>752960336374-fo6psf8nulrubsc567v18sck4psm03jo.apps.googleusercontent.com</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
 		<false/>
-		<!-- Add specific exceptions if your backend uses HTTP -->
-		<!--
-		<key>NSExceptionDomains</key>
-		<dict>
-			<key>your-backend-domain.com</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-			</dict>
-		</dict>
-		-->
 	</dict>
-	
+	<key>NSCameraUsageDescription</key>
+	<string>NagrikMitra needs access to your camera to capture photos of civic issues.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>NagrikMitra needs your location to automatically detect and report civic issues in your area.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>NagrikMitra needs access to your photos to attach evidence to issue reports.</string>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
 </dict>
 </plist>

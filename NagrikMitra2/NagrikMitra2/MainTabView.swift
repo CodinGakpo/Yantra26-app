@@ -12,7 +12,7 @@ struct MainTabView: View {
     @State private var showLogin = false
     
     var body: some View {
-        Group {
+        ZStack {
             if authManager.isAuthenticated {
                 TabView {
                     ReportView()
@@ -43,6 +43,8 @@ struct MainTabView: View {
                     }
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea(.all, edges: .all)
     }
 }
 

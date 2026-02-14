@@ -1,6 +1,6 @@
 # JanSaathi - iOS App
 
-An iOS application for reporting civic issues and tracking their resolution. Built with SwiftUI and connected to the NagrikMitra Django backend.
+An iOS application for reporting civic issues and tracking their resolution. Built with SwiftUI and connected to the JanSaathi Django backend.
 
 ## 📱 Features
 

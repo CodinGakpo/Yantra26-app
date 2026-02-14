@@ -1,4 +1,4 @@
-# NagrikMitra2 - iOS App
+# JanSaathi - iOS App
 
 An iOS application for reporting civic issues and tracking their resolution. Built with SwiftUI and connected to the NagrikMitra Django backend.
 

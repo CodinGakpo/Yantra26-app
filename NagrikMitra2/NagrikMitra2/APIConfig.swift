@@ -63,7 +63,7 @@ struct APIConfig {
         
         // Tracking
         static func trackingDetail(_ id: String) -> String {
-            return "/track/details/\(id)/"
+            return "/track/detail/\(id)/"
         }
         
         static func presignGet(_ reportId: Int) -> String {

@@ -1157,5 +1157,5 @@ struct CivicIncentiveCardView: View {
 
 #Preview {
     ProfileView()
-        .environmentObject(AuthManager())
+        .environmentObject(AuthManager.shared)
 }

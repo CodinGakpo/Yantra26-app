@@ -359,5 +359,5 @@ struct FormField: View {
 
 #Preview {
     LoginView()
-        .environmentObject(AuthManager())
+        .environmentObject(AuthManager.shared)
 }

@@ -10,7 +10,7 @@ import GoogleSignIn
 
 @main
 struct NagrikMitra2App: App {
-    @StateObject private var authManager = AuthManager()
+    @ObservedObject private var authManager = AuthManager.shared
     
     init() {
         // Configure Google Sign-In on app launch

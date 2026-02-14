@@ -10,6 +10,8 @@ import SwiftUI
 import Combine
 
 class AuthManager: ObservableObject {
+    static let shared = AuthManager()
+    
     @Published var isAuthenticated = false
     @Published var currentUser: User?
     @Published var accessToken: String?
@@ -17,7 +19,11 @@ class AuthManager: ObservableObject {
     private let accessTokenKey = "accessToken"
     private let refreshTokenKey = "refreshToken"
     
-    init() {
+    var isLoggedIn: Bool {
+        return isAuthenticated && accessToken != nil
+    }
+    
+    private init() {
         // Check if user is already logged in
         if let token = UserDefaults.standard.string(forKey: accessTokenKey) {
             self.accessToken = token

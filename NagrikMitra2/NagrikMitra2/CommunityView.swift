@@ -24,80 +24,161 @@ struct CommunityView: View {
                 
                 ScrollView {
                     LazyVStack(spacing: 16) {
-                    // Header
-                    VStack(spacing: 12) {
-                        Image(systemName: "sparkles")
-                            .font(.system(size: 50))
-                            .foregroundColor(Theme.Colors.emerald600)
-                            .symbolEffect(.pulse)
-                        
-                        Text("Community Updates")
-                            .font(.title.bold())
-                            .foregroundColor(Theme.Colors.gray900)
-                        
-                        Text("Success Stories of Civic Impact")
-                            .font(.headline)
-                            .foregroundColor(Theme.Colors.emerald700)
-                        
-                        Text("See what issues have been resolved in your area")
-                            .font(.subheadline)
-                            .foregroundColor(Theme.Colors.gray600)
-                            .multilineTextAlignment(.center)
-                    }
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(checkmark.seal.fill")
-                                .font(.system(size: 60))
-                                .foregroundColor(Theme.Colors.emerald400)
+                        // Header
+                        VStack(spacing: 12) {
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 50))
+                                .foregroundColor(Theme.Colors.emerald600)
+                                .symbolEffect(.pulse)
                             
-                            Text("No resolved issues yet")
+                            Text("Community Updates")
+                                .font(.title.bold())
+                                .foregroundColor(Theme.Colors.gray900)
+                            
+                            Text("Success Stories of Civic Impact")
                                 .font(.headline)
-                                .foregroundColor(Theme.Colors.gray600)
+                                .foregroundColor(Theme.Colors.emerald700)
                             
-                            Text("Check back soon for success stories!")
+                            Text("See what issues have been resolved in your area")
                                 .font(.subheadline)
-                                .foregroundColor(Theme.Colors.gray500)
+                                .foregroundColor(Theme.Colors.gray600)
+                                .multilineTextAlignment(.center)
                         }
-                        .padding(40)
-                    } else {
-                        ForEach(reports) { report in
-                            CommunityPostCard(
-                                report: report,
-                                onTap: {
-                                    selectedReport = report
-                                    showDetailsView = true
-                                },
-                                onLike: { await handleLike(report: report) },
-                                onDislike: { await handleDislike(report: report) }
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            LinearGradient(
+                                colors: [Theme.Colors.emerald50, Theme.Colors.surface],
+                                startPoint: .top,
+                                endPoint: .bottom
                             )
-                                .padding(.horizontal)
-                        }
+                        )
                         
-                        // Load more indicator
-                        if nextUrl != nil {
-                            if isLoading {
-                                ProgressView()
-                                    .padding()
-                            } else {
-                                Color.clear
-                                    .frame(height: 1)
-                                    .onAppear {
-                                        loadMore()
-                                    }
+                        // Feed
+                        if reports.isEmpty && !isLoading {
+                            VStack(spacing: 16) {
+                                Image(systemName: "checkmark.seal.fill")
+                                    .font(.system(size: 60))
+                                    .foregroundColor(Theme.Colors.emerald500)
+                                
+                                Text("No resolved issues yet")
+                                    .font(.headline)
+                                    .foregroundColor(Theme.Colors.gray600)
+                                
+                                Text("Check back soon for success stories!")
+                                    .font(.subheadline)
+                                    .foregroundColor(Theme.Colors.gray500)
                             }
-                        // Load more
-                        if nextUrl != nil {
-                            Button(action: loadMore) {
+                            .padding(40)
+                        } else {
+                            ForEach(reports) { report in
+                                CommunityPostCard(
+                                    report: report,
+                                    onTap: {
+                                        selectedReport = report
+                                        showDetailsView = true
+                                    },
+                                    onLike: { await handleLike(report: report) },
+                                    onDislike: { await handleDislike(report: report) }
+                                )
+                                    .padding(.horizontal)
+                            }
+                            
+                            // Load more indicator
+                            if nextUrl != nil {
                                 if isLoading {
                                     ProgressView()
+                                        .padding()
                                 } else {
-                                    Text("Load More")
-                                        .fontWeight(.semibold)
+                                    Color.clear
+                                        .frame(height: 1)
+                                        .onAppear {
+                                            loadMore()
+                                        }
                                 }
                             }
+                        }
+                    }
+                    .padding(.vertical)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .navigationBarTitleDisplayMode(.inline)
+            .refreshable {
+                await refresh()
+            }
+            .task {
+                await loadInitial()
+            }
+            .alert("Error", isPresented: $showError) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(errorMessage)
+            }
             .sheet(isPresented: $showDetailsView) {
                 if let report = selectedReport {
                     PostDetailsView(report: report)
+                }
+            }
+        }
+    }
+    
+    private func loadInitial() async {
+        guard reports.isEmpty else { return }
+        
+        await MainActor.run {
+            isLoading = true
+        }
+        
+        do {
+            let response = try await NetworkManager.shared.getCommunityPosts()
+            await MainActor.run {
+                reports = response.results
+                nextUrl = response.next
+                isLoading = false
+            }
+        } catch {
+            await MainActor.run {
+                errorMessage = error.localizedDescription
+                showError = true
+                isLoading = false
+            }
+        }
+    }
+    
+    private func refresh() async {
+        do {
+            let response = try await NetworkManager.shared.getCommunityPosts()
+            await MainActor.run {
+                reports = response.results
+                nextUrl = response.next
+            }
+        } catch {
+            await MainActor.run {
+                errorMessage = error.localizedDescription
+                showError = true
+            }
+        }
+    }
+    
+    private func loadMore() {
+        guard let nextUrl = nextUrl, !isLoading else { return }
+        
+        isLoading = true
+        
+        Task {
+            do {
+                let response = try await NetworkManager.shared.getCommunityPosts(nextUrl: nextUrl)
+                await MainActor.run {
+                    reports.append(contentsOf: response.results)
+                    self.nextUrl = response.next
+                    isLoading = false
+                }
+            } catch {
+                await MainActor.run {
+                    errorMessage = error.localizedDescription
+                    showError = true
+                    isLoading = false
                 }
             }
         }
@@ -267,87 +348,6 @@ struct CommunityView: View {
                 reports[index] = report
                 errorMessage = error.localizedDescription
                 showError = true
-            }
-                            .padding()
-                        }
-                    }
-                }
-                .padding(.vertical)
-            }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .navigationBarTitleDisplayMode(.inline)
-            .refreshable {
-                await refresh()
-            }
-            .task {
-                await loadInitial()
-            }
-            .alert("Error", isPresented: $showError) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text(errorMessage)
-            }
-        }
-    }
-    
-    private func loadInitial() async {
-        guard reports.isEmpty else { return }
-        
-        await MainActor.run {
-            isLoading = true
-        }
-        
-        do {
-            let response = try await NetworkManager.shared.getCommunityPosts()
-            await MainActor.run {
-                reports = response.results
-                nextUrl = response.next
-                isLoading = false
-            }
-        } catch {
-            await MainActor.run {
-                errorMessage = error.localizedDescription
-                showError = true
-                isLoading = false
-            }
-        }
-    }
-    
-    private func refresh() async {
-        do {
-            let response = try await NetworkManager.shared.getCommunityPosts()
-            await MainActor.run {
-                reports = response.results
-                nextUrl = response.next
-            }
-        } catch {
-            await MainActor.run {
-                errorMessage = error.localizedDescription
-                showError = true
-            }
-        }
-    }
-    
-    private func loadMore() {
-        guard let nextUrl = nextUrl, !isLoading else { return }
-        
-        isLoading = true
-        
-        Task {
-            do {
-                let response = try await NetworkManager.shared.getCommunityPosts(nextUrl: nextUrl)
-                await MainActor.run {
-                    reports.append(contentsOf: response.results)
-                    self.nextUrl = response.next
-                    isLoading = false
-                }
-            } catch {
-                await MainActor.run {
-                    errorMessage = error.localizedDescription
-                    showError = true
-                    isLoading = false
-                }
             }
         }
     }

@@ -50,5 +50,5 @@ struct MainTabView: View {
 
 #Preview {
     MainTabView()
-        .environmentObject(AuthManager())
+        .environmentObject(AuthManager.shared)
 }

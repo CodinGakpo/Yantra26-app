@@ -1,6 +1,6 @@
 //
 //  LandingView.swift
-//  NagrikMitra2
+//  JanSaathi2
 //
 //  Landing/Welcome screen
 //
@@ -22,7 +22,7 @@ struct LandingView: View {
                         .foregroundColor(.white)
                         .padding(.top, 60)
                     
-                    Text("NagrikMitra")
+                    Text("JanSaathi")
                         .font(.system(size: 48, weight: .bold))
                         .foregroundColor(.white)
                     

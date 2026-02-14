@@ -1,6 +1,6 @@
 //
-//  NagrikMitra2UITests.swift
-//  NagrikMitra2UITests
+//  JanSaathi2UITests.swift
+//  JanSaathi2UITests
 //
 //  Created by Avadhoot Ganesh Mahadik on 10/02/26.
 //

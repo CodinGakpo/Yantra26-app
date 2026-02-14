@@ -1,6 +1,6 @@
 //
 //  AuthManager.swift
-//  NagrikMitra2
+//  JanSaathi2
 //
 //  Authentication manager
 //

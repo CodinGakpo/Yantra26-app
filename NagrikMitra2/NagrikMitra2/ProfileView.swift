@@ -1,6 +1,6 @@
 //
 //  ProfileView.swift
-//  NagrikMitra2
+//  JanSaathi2
 //
 //  User profile screen
 //

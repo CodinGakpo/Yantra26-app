@@ -1,6 +1,6 @@
 //
 //  Models.swift
-//  NagrikMitra2
+//  JanSaathi2
 //
 //  Data models for the app
 //

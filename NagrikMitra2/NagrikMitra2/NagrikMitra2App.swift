@@ -1,6 +1,6 @@
 //
-//  NagrikMitra2App.swift
-//  NagrikMitra2
+//  JanSaathi2App.swift
+//  JanSaathi2
 //
 //  Created by Avadhoot Ganesh Mahadik on 10/02/26.
 //

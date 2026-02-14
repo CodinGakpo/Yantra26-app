@@ -30,11 +30,11 @@
 		<false/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>NagrikMitra needs access to your camera to capture photos of civic issues.</string>
+	<string>JanSaathi needs access to your camera to capture photos of civic issues.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>NagrikMitra needs your location to automatically detect and report civic issues in your area.</string>
+	<string>JanSaathi needs your location to automatically detect and report civic issues in your area.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>NagrikMitra needs access to your photos to attach evidence to issue reports.</string>
+	<string>JanSaathi needs access to your photos to attach evidence to issue reports.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 </dict>

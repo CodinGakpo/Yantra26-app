@@ -1,6 +1,6 @@
 //
 //  NetworkManager.swift
-//  NagrikMitra2
+//  JanSaathi2
 //
 //  Network layer for API communication
 //

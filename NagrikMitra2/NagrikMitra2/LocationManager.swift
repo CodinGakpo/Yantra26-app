@@ -1,6 +1,6 @@
 //
 //  LocationManager.swift
-//  NagrikMitra2
+//  JanSaathi2
 //
 //  Modern location services manager with MKReverseGeocodingRequest
 //

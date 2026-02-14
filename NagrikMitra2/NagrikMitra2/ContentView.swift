@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  NagrikMitra2
+//  JanSaathi2
 //
 //  Created by Avadhoot Ganesh Mahadik on 10/02/26.
 //

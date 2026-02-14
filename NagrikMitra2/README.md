@@ -1,6 +1,6 @@
-# NagrikMitra2 - iOS App
+# JanSaathi - iOS App
 
-An iOS application for reporting civic issues and tracking their resolution. Built with SwiftUI and connected to the NagrikMitra Django backend.
+An iOS application for reporting civic issues and tracking their resolution. Built with SwiftUI and connected to the JanSaathi Django backend.
 
 ## 📱 Features
 
@@ -50,7 +50,7 @@ python manage.py runserver
 
 ### 2. Configure Backend URL
 
-Open [APIConfig.swift](NagrikMitra2/APIConfig.swift) and update the base URL:
+Open [APIConfig.swift](JanSaathi2/APIConfig.swift) and update the base URL:
 
 ```swift
 // For iOS Simulator (local backend)
@@ -70,8 +70,8 @@ static let baseURL = "https://your-backend-url.com"
 ### 3. Open in Xcode
 
 ```bash
-cd NagrikMitra2
-open NagrikMitra2.xcodeproj
+cd JanSaathi2
+open JanSaathi2.xcodeproj
 ```
 
 ### 4. Build and Run
@@ -83,13 +83,13 @@ open NagrikMitra2.xcodeproj
 ## 📱 App Structure
 
 ```
-NagrikMitra2/
+JanSaathi2/
 ├── Models.swift              # Data models (User, Report, Profile)
 ├── APIConfig.swift           # API endpoints configuration
 ├── NetworkManager.swift      # Network layer
 ├── AuthManager.swift         # Authentication state
 ├── Theme.swift               # Design system
-├── NagrikMitra2App.swift     # App entry point
+├── JanSaathi2App.swift     # App entry point
 ├── MainTabView.swift         # Tab navigation
 ├── LandingView.swift         # Welcome screen
 ├── LoginView.swift           # Authentication
@@ -218,7 +218,7 @@ All screens support pull-to-refresh:
 ## 🎨 Customization
 
 ### Change Colors
-Edit [Theme.swift](NagrikMitra2/Theme.swift):
+Edit [Theme.swift](JanSaathi2/Theme.swift):
 ```swift
 struct Colors {
     static let emerald500 = Color(hex: "YOUR_COLOR")
@@ -227,7 +227,7 @@ struct Colors {
 ```
 
 ### Add New Features
-1. Create new view file in NagrikMitra2/
+1. Create new view file in JanSaathi2/
 2. Add view to MainTabView or navigation
 3. Update NetworkManager with any new API calls
 4. Update Models with new data structures
@@ -265,4 +265,4 @@ For issues or questions:
 
 ## 🙏 Credits
 
-Built with SwiftUI and connected to the NagrikMitra Django backend platform for civic engagement.
+Built with SwiftUI and connected to the JanSaathi Django backend platform for civic engagement.

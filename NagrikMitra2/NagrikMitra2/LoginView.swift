@@ -1,6 +1,6 @@
 //
 //  LoginView.swift
-//  NagrikMitra2
+//  JanSaathi2
 //
 //  Login and registration screen
 //
@@ -48,7 +48,7 @@ struct LoginView: View {
                             .font(.system(size: 60))
                             .foregroundColor(.white)
                         
-                        Text("NagrikMitra")
+                        Text("JanSaathi")
                             .font(.title.bold())
                             .foregroundColor(.white)
                         

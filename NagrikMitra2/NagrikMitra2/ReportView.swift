@@ -1,6 +1,6 @@
 //
 //  ReportView.swift
-//  NagrikMitra2
+//  JanSaathi2
 //
 //  Report submission screen
 //

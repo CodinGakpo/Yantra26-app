@@ -1,6 +1,6 @@
 //
 //  CommunityView.swift
-//  NagrikMitra2
+//  JanSaathi2
 //
 //  Community feed of resolved issues
 //

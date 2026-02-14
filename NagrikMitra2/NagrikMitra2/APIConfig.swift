@@ -1,6 +1,6 @@
 //
 //  APIConfig.swift
-//  NagrikMitra2
+//  JanSaathi2
 //
 //  API configuration
 //

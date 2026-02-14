@@ -1,6 +1,6 @@
 //
 //  GoogleSignInManager.swift
-//  NagrikMitra2
+//  JanSaathi2
 //
 //  Google Sign-In helper manager
 //

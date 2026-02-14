@@ -1,6 +1,6 @@
 //
 //  Theme.swift
-//  NagrikMitra2
+//  JanSaathi2
 //
 //  Design system and theme
 //

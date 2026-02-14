@@ -167,6 +167,24 @@ struct ProfileView: View {
                     }
                     .padding(.horizontal)
                     
+                    // Deactivation Banner
+                    if let profile = profile, profile.isTemporarilyDeactivated == true {
+                        DeactivationBannerView(deactivatedUntil: profile.deactivatedUntil)
+                            .padding(.horizontal)
+                    }
+                    
+                    // Trust Score Card
+                    if let profile = profile {
+                        TrustScoreCardView(profile: profile)
+                            .padding(.horizontal)
+                    }
+                    
+                    // Civic Incentive Card
+                    if let profile = profile {
+                        CivicIncentiveCardView(profile: profile)
+                            .padding(.horizontal)
+                    }
+                    
                     // Logout Button
                     Button(action: { authManager.logout() }) {
                             HStack {
@@ -790,6 +808,350 @@ struct ReportDetailModal: View {
         outputFormatter.timeStyle = .short
         
         return outputFormatter.string(from: date)
+    }
+}
+
+// MARK: - Deactivation Banner View
+
+struct DeactivationBannerView: View {
+    let deactivatedUntil: String?
+    
+    var body: some View {
+        if let deactivatedUntil = deactivatedUntil {
+            VStack(spacing: 8) {
+                HStack(spacing: 12) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.title2)
+                        .foregroundColor(.red)
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Account Temporarily Deactivated")
+                            .font(.headline)
+                            .foregroundColor(Theme.Colors.gray900)
+                        
+                        Text("Account activates on \(formatDeactivationDate(deactivatedUntil))")
+                            .font(.subheadline)
+                            .foregroundColor(Theme.Colors.gray600)
+                        
+                        Text("You cannot submit new reports during this period")
+                            .font(.caption)
+                            .foregroundColor(Theme.Colors.gray500)
+                    }
+                    
+                    Spacer()
+                }
+                .padding()
+                .background(Color.red.opacity(0.1))
+                .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.red.opacity(0.3), lineWidth: 1)
+                )
+            }
+        }
+    }
+    
+    private func formatDeactivationDate(_ dateString: String) -> String {
+        let inputFormatter = ISO8601DateFormatter()
+        inputFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        
+        guard let date = inputFormatter.date(from: dateString) else {
+            return dateString
+        }
+        
+        let outputFormatter = DateFormatter()
+        outputFormatter.dateFormat = "HH:mm, dd MMMM yyyy"
+        
+        return outputFormatter.string(from: date)
+    }
+}
+
+// MARK: - Trust Score Card View
+
+struct TrustScoreCardView: View {
+    let profile: UserProfile
+    
+    private var trustScore: Int {
+        profile.trustScore ?? 100
+    }
+    
+    private var scoreColor: Color {
+        switch trustScore {
+        case 110:
+            return Color(red: 1.0, green: 0.84, blue: 0.0) // Gold
+        case 100..<110:
+            return .green
+        case 50..<100:
+            return .orange
+        default:
+            return .red
+        }
+    }
+    
+    private var scoreLabel: String {
+        switch trustScore {
+        case 110:
+            return "Trusted Citizen"
+        case 100..<110:
+            return "Good Standing"
+        case 50..<100:
+            return "Fair Standing"
+        default:
+            return "Low Trust"
+        }
+    }
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            // Header
+            HStack {
+                Image(systemName: "shield.checkered")
+                    .font(.title2)
+                    .foregroundColor(scoreColor)
+                
+                Text("Trust Score")
+                    .font(.headline)
+                    .foregroundColor(Theme.Colors.gray900)
+                
+                Spacer()
+                
+                // Status badge
+                Text(scoreLabel)
+                    .font(.caption.bold())
+                    .foregroundColor(scoreColor)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(scoreColor.opacity(0.15))
+                    .cornerRadius(8)
+            }
+            
+            // Score Display
+            VStack(spacing: 8) {
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text("\(trustScore)")
+                        .font(.system(size: 48, weight: .bold))
+                        .foregroundColor(scoreColor)
+                    
+                    Text("/ 110")
+                        .font(.title3)
+                        .foregroundColor(Theme.Colors.gray500)
+                }
+                
+                // Progress Bar
+                GeometryReader { geometry in
+                    ZStack(alignment: .leading) {
+                        Rectangle()
+                            .fill(Theme.Colors.gray200)
+                            .frame(height: 8)
+                            .cornerRadius(4)
+                        
+                        Rectangle()
+                            .fill(scoreColor)
+                            .frame(width: geometry.size.width * CGFloat(trustScore) / 110.0, height: 8)
+                            .cornerRadius(4)
+                    }
+                }
+                .frame(height: 8)
+            }
+            
+            // Description
+            Text("Your trust score reflects your reporting behavior and credibility. Maintain good standing by submitting accurate reports.")
+                .font(.caption)
+                .foregroundColor(Theme.Colors.gray600)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 8)
+        }
+        .padding()
+        .background(Theme.Colors.surface)
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
+    }
+}
+
+// MARK: - Civic Incentive Card View
+
+struct CivicIncentiveCardView: View {
+    let profile: UserProfile
+    
+    private var rewardValue: Int {
+        profile.incentiveRewardValue ?? 50
+    }
+    
+    private var targetReports: Int {
+        profile.incentiveTargetResolvedReports ?? 6
+    }
+    
+    private var resolvedCount: Int {
+        profile.incentiveLatestResolvedCount ?? 0
+    }
+    
+    private var hasRequiredTrustScore: Bool {
+        profile.incentiveHasRequiredTrustScore ?? false
+    }
+    
+    private var isEligible: Bool {
+        profile.incentiveIsEligibleNow ?? false
+    }
+    
+    private var rewardGranted: Bool {
+        profile.incentiveRewardGranted ?? false
+    }
+    
+    private var rewardJustGranted: Bool {
+        profile.incentiveRewardJustGranted ?? false
+    }
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            // Header
+            HStack {
+                Image(systemName: rewardGranted ? "trophy.fill" : "gift.fill")
+                    .font(.title2)
+                    .foregroundColor(rewardGranted ? Color(red: 1.0, green: 0.84, blue: 0.0) : Theme.Colors.emerald600)
+                
+                Text("Civic Incentive Reward")
+                    .font(.headline)
+                    .foregroundColor(Theme.Colors.gray900)
+                
+                Spacer()
+            }
+            
+            if rewardGranted {
+                // Reward Unlocked
+                VStack(spacing: 12) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 50))
+                        .foregroundColor(.green)
+                    
+                    Text("Reward Unlocked!")
+                        .font(.title3.bold())
+                        .foregroundColor(Theme.Colors.gray900)
+                    
+                    Text("You received Rs. \(rewardValue)\(rewardJustGranted ? " for meeting this milestone." : "")")
+                        .font(.subheadline)
+                        .foregroundColor(Theme.Colors.gray600)
+                        .multilineTextAlignment(.center)
+                    
+                    HStack(spacing: 20) {
+                        VStack(spacing: 4) {
+                            Text("\(profile.incentiveRewardAmount ?? rewardValue)")
+                                .font(.title2.bold())
+                                .foregroundColor(Theme.Colors.emerald600)
+                            Text("Total Earned")
+                                .font(.caption)
+                                .foregroundColor(Theme.Colors.gray500)
+                        }
+                        
+                        Divider()
+                            .frame(height: 40)
+                        
+                        VStack(spacing: 4) {
+                            Text("\(resolvedCount)")
+                                .font(.title2.bold())
+                                .foregroundColor(Theme.Colors.emerald600)
+                            Text("Reports Resolved")
+                                .font(.caption)
+                                .foregroundColor(Theme.Colors.gray500)
+                        }
+                    }
+                    .padding()
+                    .background(Theme.Colors.emerald50)
+                    .cornerRadius(12)
+                }
+            } else {
+                // Progress Towards Reward
+                VStack(spacing: 16) {
+                    // Reward Amount
+                    HStack {
+                        Text("Reward Value:")
+                            .font(.subheadline)
+                            .foregroundColor(Theme.Colors.gray600)
+                        
+                        Spacer()
+                        
+                        Text("Rs. \(rewardValue)")
+                            .font(.title3.bold())
+                            .foregroundColor(Theme.Colors.emerald600)
+                    }
+                    
+                    Divider()
+                    
+                    // Progress
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Requirements:")
+                            .font(.subheadline.bold())
+                            .foregroundColor(Theme.Colors.gray700)
+                        
+                        // Resolved Reports Progress
+                        HStack(spacing: 12) {
+                            Image(systemName: resolvedCount >= targetReports ? "checkmark.circle.fill" : "circle")
+                                .foregroundColor(resolvedCount >= targetReports ? .green : Theme.Colors.gray400)
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("\(resolvedCount) / \(targetReports) latest reports resolved")
+                                    .font(.subheadline)
+                                    .foregroundColor(Theme.Colors.gray700)
+                                
+                                // Progress bar
+                                GeometryReader { geometry in
+                                    ZStack(alignment: .leading) {
+                                        Rectangle()
+                                            .fill(Theme.Colors.gray200)
+                                            .frame(height: 6)
+                                            .cornerRadius(3)
+                                        
+                                        Rectangle()
+                                            .fill(Theme.Colors.emerald600)
+                                            .frame(width: geometry.size.width * CGFloat(min(resolvedCount, targetReports)) / CGFloat(targetReports), height: 6)
+                                            .cornerRadius(3)
+                                    }
+                                }
+                                .frame(height: 6)
+                            }
+                        }
+                        
+                        // Trust Score Requirement
+                        HStack(spacing: 12) {
+                            Image(systemName: hasRequiredTrustScore ? "checkmark.circle.fill" : "circle")
+                                .foregroundColor(hasRequiredTrustScore ? .green : Theme.Colors.gray400)
+                            
+                            Text(hasRequiredTrustScore ? "Trust score requirement met (110)" : "Reach trust score of 110")
+                                .font(.subheadline)
+                                .foregroundColor(Theme.Colors.gray700)
+                        }
+                    }
+                    
+                    // Eligibility Status
+                    if isEligible {
+                        HStack(spacing: 8) {
+                            Image(systemName: "sparkles")
+                                .foregroundColor(Theme.Colors.emerald600)
+                            
+                            Text("You're eligible! Reward will be granted shortly.")
+                                .font(.subheadline.bold())
+                                .foregroundColor(Theme.Colors.emerald600)
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Theme.Colors.emerald50)
+                        .cornerRadius(8)
+                    }
+                }
+            }
+            
+            // Info Text
+            if !rewardGranted {
+                Text("Submit quality reports that get resolved to earn this one-time civic reward")
+                    .font(.caption)
+                    .foregroundColor(Theme.Colors.gray600)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 8)
+            }
+        }
+        .padding()
+        .background(Theme.Colors.surface)
+        .cornerRadius(16)
+        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 2)
     }
 }
 

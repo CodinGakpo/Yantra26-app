@@ -374,6 +374,43 @@ extension NetworkManager {
             authenticated: true
         )
     }
+    
+    // MARK: - Social Features
+    func likeReport(reportId: Int) async throws -> LikeDislikeResponse {
+        return try await request(
+            endpoint: "/reports/\(reportId)/like/",
+            method: "POST",
+            authenticated: true
+        )
+    }
+    
+    func dislikeReport(reportId: Int) async throws -> LikeDislikeResponse {
+        return try await request(
+            endpoint: "/reports/\(reportId)/dislike/",
+            method: "POST",
+            authenticated: true
+        )
+    }
+    
+    func getComments(reportId: Int) async throws -> [Comment] {
+        return try await request(
+            endpoint: "/reports/\(reportId)/comments/",
+            authenticated: false
+        )
+    }
+    
+    func postComment(reportId: Int, text: String) async throws -> Comment {
+        let body = try JSONEncoder().encode([
+            "text": text
+        ])
+        
+        return try await request(
+            endpoint: "/reports/\(reportId)/comments/",
+            method: "POST",
+            body: body,
+            authenticated: true
+        )
+    }
 }
 
 // MARK: - Response Models

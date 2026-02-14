@@ -121,6 +121,22 @@ struct UserProfile: Codable {
     let aadhaar: AadhaarData?
     let createdAt: String?
     let updatedAt: String?
+    
+    // Trust Score & Civic Incentive System
+    let trustScore: Int?
+    let isTemporarilyDeactivated: Bool?
+    let deactivatedUntil: String?
+    let incentiveRewardGranted: Bool?
+    let incentiveRewardAmount: Int?
+    let incentiveRewardValue: Int?
+    let incentiveTargetResolvedReports: Int?
+    let incentiveLatestReportsChecked: Int?
+    let incentiveLatestResolvedCount: Int?
+    let incentiveAllLatestReportsResolved: Bool?
+    let incentiveTrustScoreRequired: Int?
+    let incentiveHasRequiredTrustScore: Bool?
+    let incentiveIsEligibleNow: Bool?
+    let incentiveRewardJustGranted: Bool?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -128,6 +144,21 @@ struct UserProfile: Codable {
         case aadhaar
         case createdAt = "created_at"
         case updatedAt = "updated_at"
+        
+        case trustScore = "trust_score"
+        case isTemporarilyDeactivated = "is_temporarily_deactivated"
+        case deactivatedUntil = "deactivated_until"
+        case incentiveRewardGranted = "incentive_reward_granted"
+        case incentiveRewardAmount = "incentive_reward_amount"
+        case incentiveRewardValue = "incentive_reward_value"
+        case incentiveTargetResolvedReports = "incentive_target_resolved_reports"
+        case incentiveLatestReportsChecked = "incentive_latest_reports_checked"
+        case incentiveLatestResolvedCount = "incentive_latest_resolved_count"
+        case incentiveAllLatestReportsResolved = "incentive_all_latest_reports_resolved"
+        case incentiveTrustScoreRequired = "incentive_trust_score_required"
+        case incentiveHasRequiredTrustScore = "incentive_has_required_trust_score"
+        case incentiveIsEligibleNow = "incentive_is_eligible_now"
+        case incentiveRewardJustGranted = "incentive_reward_just_granted"
     }
 }
 
@@ -326,5 +357,47 @@ struct SLAStatus: Codable {
         case withinSla = "within_sla"
         case daysElapsed = "days_elapsed"
         case daysRemaining = "days_remaining"
+    }
+}
+
+// MARK: - Comments
+
+struct Comment: Codable, Identifiable {
+    let id: Int
+    let report: Int
+    let user: Int
+    let text: String
+    let createdAt: String
+    let username: String?
+    let fullName: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case report
+        case user
+        case text
+        case createdAt = "created_at"
+        case username
+        case fullName = "full_name"
+    }
+    
+    var displayName: String {
+        fullName ?? username ?? "Anonymous"
+    }
+}
+
+// MARK: - Social Interaction Responses
+
+struct LikeDislikeResponse: Codable {
+    let liked: Bool?
+    let disliked: Bool?
+    let likesCount: Int
+    let dislikesCount: Int
+    
+    enum CodingKeys: String, CodingKey {
+        case liked
+        case disliked
+        case likesCount = "likes_count"
+        case dislikesCount = "dislikes_count"
     }
 }

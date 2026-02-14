@@ -21,6 +21,8 @@ struct ReportView: View {
     @State private var showSuccess = false
     @State private var showError = false
     @State private var errorMessage = ""
+    @State private var showValidationError = false
+    @State private var validationErrorDetails = ""
     @State private var trackingId: String?
     @State private var isDetectingLocation = false
     @State private var showCopiedConfirmation = false
@@ -187,6 +189,17 @@ struct ReportView: View {
             } message: {
                 Text(errorMessage)
             }
+            .sheet(isPresented: $showValidationError) {
+                ValidationErrorView(
+                    errorDetails: validationErrorDetails,
+                    onDismiss: {
+                        showValidationError = false
+                        // Clear the image to force user to select a new one
+                        selectedPhoto = nil
+                        selectedImageData = nil
+                    }
+                )
+            }
             .onAppear {
                 // Request location permission on appear
                 if locationManager.authorizationStatus == .notDetermined {
@@ -234,8 +247,12 @@ struct ReportView: View {
                     
                     // Check if image and description match
                     if !prediction.isValid {
-                        let errorMsg = prediction.reason ?? "The image and description do not match. Please ensure your image accurately represents the issue described."
-                        throw NSError(domain: "ValidationError", code: 400, userInfo: [NSLocalizedDescriptionKey: errorMsg])
+                        await MainActor.run {
+                            validationErrorDetails = prediction.reason ?? "The image and description do not match. Please ensure your image accurately represents the issue described."
+                            showValidationError = true
+                            isSubmitting = false
+                        }
+                        return
                     }
                     
                     department = prediction.department
@@ -389,6 +406,96 @@ struct CustomTextFieldStyle: TextFieldStyle {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(Theme.Colors.gray300, lineWidth: 1)
             )
+    }
+}
+
+struct ValidationErrorView: View {
+    let errorDetails: String
+    let onDismiss: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            Spacer()
+            
+            // Error Icon
+            ZStack {
+                Circle()
+                    .fill(Color.red.opacity(0.1))
+                    .frame(width: 100, height: 100)
+                
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.system(size: 50))
+                    .foregroundColor(.red)
+            }
+            
+            // Title
+            Text("Image Mismatch Detected")
+                .font(.title2.bold())
+                .foregroundColor(Theme.Colors.gray900)
+                .multilineTextAlignment(.center)
+            
+            // Error Message
+            VStack(spacing: 12) {
+                Text(errorDetails)
+                    .font(.body)
+                    .foregroundColor(Theme.Colors.gray700)
+                    .multilineTextAlignment(.center)
+                    .padding()
+                    .background(Color.red.opacity(0.05))
+                    .cornerRadius(12)
+                
+                // Helpful Tips
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Please ensure:")
+                        .font(.subheadline.bold())
+                        .foregroundColor(Theme.Colors.gray900)
+                    
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "1.circle.fill")
+                            .foregroundColor(Theme.Colors.emerald600)
+                        Text("Your image clearly shows the issue you're describing")
+                            .font(.subheadline)
+                            .foregroundColor(Theme.Colors.gray700)
+                    }
+                    
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "2.circle.fill")
+                            .foregroundColor(Theme.Colors.emerald600)
+                        Text("The description accurately matches what's in the image")
+                            .font(.subheadline)
+                            .foregroundColor(Theme.Colors.gray700)
+                    }
+                    
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: "3.circle.fill")
+                            .foregroundColor(Theme.Colors.emerald600)
+                        Text("The image is clear and well-lit")
+                            .font(.subheadline)
+                            .foregroundColor(Theme.Colors.gray700)
+                    }
+                }
+                .padding()
+                .background(Theme.Colors.emerald50)
+                .cornerRadius(12)
+            }
+            .padding(.horizontal)
+            
+            Spacer()
+            
+            // Action Button
+            Button(action: onDismiss) {
+                Text("Update Details & Try Again")
+                    .fontWeight(.semibold)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Theme.Colors.emerald600)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 32)
+        }
+        .background(Theme.Colors.background)
     }
 }
 

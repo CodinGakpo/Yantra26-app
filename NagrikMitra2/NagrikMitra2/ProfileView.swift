@@ -167,6 +167,23 @@ struct ProfileView: View {
                     }
                     .padding(.horizontal)
                     
+                    // Logout Button
+                    Button(action: { authManager.logout() }) {
+                            HStack {
+                                Image(systemName: "rectangle.portrait.and.arrow.right")
+                                Text("Logout")
+                                    .fontWeight(.semibold)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Theme.Colors.error.opacity(0.1))
+                            .foregroundColor(Theme.Colors.error)
+                            .cornerRadius(12)
+                        }
+                        .padding(.horizontal)
+                        .padding(.bottom)
+                    }
+
                     // Recent Reports
                     VStack(alignment: .leading, spacing: 16) {
                         Text("My Reports")
@@ -205,22 +222,7 @@ struct ProfileView: View {
                         }
                     }
                     
-                    // Logout Button
-                    Button(action: { authManager.logout() }) {
-                        HStack {
-                            Image(systemName: "rectangle.portrait.and.arrow.right")
-                            Text("Logout")
-                                .fontWeight(.semibold)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Theme.Colors.error.opacity(0.1))
-                        .foregroundColor(Theme.Colors.error)
-                        .cornerRadius(12)
-                    }
-                    .padding(.horizontal)
-                    .padding(.bottom)
-                }
+                    
                 .padding(.bottom, 20)
             }
             }

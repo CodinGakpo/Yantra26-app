@@ -68,6 +68,19 @@ struct Report: Codable, Identifiable {
     let confidenceScore: Double?
     let allocatedTo: String?
     
+    // Additional fields from community/tracking endpoints
+    let userName: String?
+    let username: String?
+    let likesCount: Int?
+    let dislikesCount: Int?
+    let commentsCount: Int?
+    let isLiked: Bool?
+    let isDisliked: Bool?
+    let appealStatus: String?
+    let trustScoreDelta: Int?
+    let likes: [Int]?
+    let dislikes: [Int]?
+    
     enum CodingKeys: String, CodingKey {
         case id
         case user
@@ -83,6 +96,17 @@ struct Report: Codable, Identifiable {
         case department
         case confidenceScore = "confidence_score"
         case allocatedTo = "allocated_to"
+        case userName = "user_name"
+        case username
+        case likesCount = "likes_count"
+        case dislikesCount = "dislikes_count"
+        case commentsCount = "comments_count"
+        case isLiked = "is_liked"
+        case isDisliked = "is_disliked"
+        case appealStatus = "appeal_status"
+        case trustScoreDelta = "trust_score_delta"
+        case likes
+        case dislikes
     }
 
     // Backward compatibility
@@ -219,6 +243,16 @@ struct S3PresignResponse: Codable {
 struct S3PresignRequest: Codable {
     let fileName: String
     let contentType: String
+}
+
+struct PresignGetResponse: Codable {
+    let imageUrl: String?
+    let completionUrl: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case imageUrl = "image_url"
+        case completionUrl = "completion_url"
+    }
 }
 
 // MARK: - Blockchain

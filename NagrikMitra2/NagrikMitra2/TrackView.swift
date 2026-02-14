@@ -13,6 +13,8 @@ struct TrackView: View {
     @State private var isSearching = false
     @State private var showError = false
     @State private var errorMessage = ""
+    @State private var presignedImageUrl: String?
+    @State private var presignedCompletionUrl: String?
     
     var body: some View {
         NavigationView {
@@ -90,8 +92,12 @@ struct TrackView: View {
                     
                     // Results
                     if let report = report {
-                        ReportDetailCard(report: report)
-                            .padding(.horizontal)
+                        ReportDetailCard(
+                            report: report,
+                            presignedImageUrl: presignedImageUrl,
+                            presignedCompletionUrl: presignedCompletionUrl
+                        )
+                        .padding(.horizontal)
                     }
                 }
                 .padding(.bottom, 20)
@@ -113,8 +119,14 @@ struct TrackView: View {
         Task {
             do {
                 let foundReport = try await NetworkManager.shared.getReportByTrackingId(trackingId)
+                
+                // Fetch presigned URLs for images
+                let presignedUrls = try await NetworkManager.shared.getPresignedImageURLs(reportId: foundReport.id)
+                
                 await MainActor.run {
                     report = foundReport
+                    presignedImageUrl = presignedUrls.imageUrl
+                    presignedCompletionUrl = presignedUrls.completionUrl
                     isSearching = false
                 }
             } catch {
@@ -130,6 +142,8 @@ struct TrackView: View {
 
 struct ReportDetailCard: View {
     let report: Report
+    let presignedImageUrl: String?
+    let presignedCompletionUrl: String?
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -160,9 +174,9 @@ struct ReportDetailCard: View {
                 DetailRow(icon: "clock", label: "Updated", value: formatDate(report.updatedAt))
             }
             
-            // Image
-            if let imageUrl = report.imageUrl {
-                AsyncImage(url: URL(string: imageUrl)) { image in
+            // Image - use presigned URL if available
+            if let presignedUrl = presignedImageUrl, let url = URL(string: presignedUrl) {
+                AsyncImage(url: url) { image in
                     image
                         .resizable()
                         .scaledToFit()
@@ -170,6 +184,25 @@ struct ReportDetailCard: View {
                 } placeholder: {
                     ProgressView()
                         .frame(height: 200)
+                }
+            }
+            
+            // Completion Image - use presigned URL if available
+            if let presignedUrl = presignedCompletionUrl, let url = URL(string: presignedUrl) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Completion Photo")
+                        .font(.subheadline.bold())
+                        .foregroundColor(Theme.Colors.gray700)
+                    
+                    AsyncImage(url: url) { image in
+                        image
+                            .resizable()
+                            .scaledToFit()
+                            .cornerRadius(12)
+                    } placeholder: {
+                        ProgressView()
+                            .frame(height: 200)
+                    }
                 }
             }
         }

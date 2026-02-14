@@ -296,9 +296,24 @@ extension NetworkManager {
             throw NetworkError.serverError("Report not found")
         }
         
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        return try decoder.decode(Report.self, from: data)
+        do {
+            let decoder = JSONDecoder()
+            // Don't use convertFromSnakeCase since we have explicit CodingKeys
+            return try decoder.decode(Report.self, from: data)
+        } catch {
+            print("Decoding error: \(error)")
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print("Response data: \(jsonString)")
+            }
+            throw NetworkError.decodingError
+        }
+    }
+    
+    func getPresignedImageURLs(reportId: Int) async throws -> PresignGetResponse {
+        return try await request(
+            endpoint: APIConfig.Endpoints.presignGet(reportId),
+            authenticated: false
+        )
     }
     
     func getCommunityPosts(nextUrl: String? = nil) async throws -> CommunityResponse {

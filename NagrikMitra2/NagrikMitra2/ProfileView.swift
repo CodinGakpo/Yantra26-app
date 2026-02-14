@@ -22,6 +22,10 @@ struct ProfileView: View {
     @State private var isVerifyingAadhaar = false
     @State private var isAadhaarVerifiedInSheet = false
     
+    // Report Detail
+    @State private var selectedReport: Report?
+    @State private var showReportDetail = false
+    
     var body: some View {
         NavigationView {
             ZStack {
@@ -193,6 +197,10 @@ struct ProfileView: View {
                             ForEach(reports) { report in
                                 ReportHistoryCard(report: report)
                                     .padding(.horizontal)
+                                    .onTapGesture {
+                                        selectedReport = report
+                                        showReportDetail = true
+                                    }
                             }
                         }
                     }
@@ -236,6 +244,11 @@ struct ProfileView: View {
                     isVerified: $isAadhaarVerifiedInSheet,
                     onVerify: verifyAadhaar
                 )
+            }
+            .sheet(isPresented: $showReportDetail) {
+                if let report = selectedReport {
+                    ReportDetailModal(report: report)
+                }
             }
         }
     }
@@ -352,6 +365,7 @@ struct StatBox: View {
 
 struct ReportHistoryCard: View {
     let report: Report
+    @State private var showCopiedConfirmation = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -376,11 +390,54 @@ struct ReportHistoryCard: View {
                     .font(.caption)
                     .foregroundColor(Theme.Colors.gray600)
             }
+            
+            // Tracking ID with copy button
+            if let trackingId = report.trackingId {
+                Divider()
+                    .padding(.vertical, 4)
+                
+                HStack(spacing: 8) {
+                    Image(systemName: "number")
+                        .font(.caption)
+                        .foregroundColor(Theme.Colors.gray600)
+                    
+                    Text(trackingId)
+                        .font(.system(.caption, design: .monospaced))
+                        .foregroundColor(Theme.Colors.gray700)
+                    
+                    Spacer()
+                    
+                    Button(action: copyTrackingId) {
+                        HStack(spacing: 4) {
+                            Image(systemName: showCopiedConfirmation ? "checkmark" : "doc.on.doc")
+                                .font(.caption)
+                            Text(showCopiedConfirmation ? "Copied" : "Copy")
+                                .font(.caption.bold())
+                        }
+                        .foregroundColor(showCopiedConfirmation ? Theme.Colors.emerald600 : Theme.Colors.gray700)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(showCopiedConfirmation ? Theme.Colors.emerald50 : Theme.Colors.gray100)
+                        .cornerRadius(6)
+                    }
+                }
+            }
         }
         .padding()
         .background(Theme.Colors.surface)
         .cornerRadius(12)
         .shadow(color: .black.opacity(0.05), radius: 4, y: 2)
+    }
+    
+    private func copyTrackingId() {
+        if let trackingId = report.trackingId {
+            UIPasteboard.general.string = trackingId
+            showCopiedConfirmation = true
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                showCopiedConfirmation = false
+            }
+        }
     }
     
     private func formatDate(_ dateString: String) -> String {
@@ -491,6 +548,246 @@ struct AadhaarVerificationSheet: View {
                 }
             }
         }
+    }
+}
+
+struct ReportDetailModal: View {
+    let report: Report
+    @Environment(\.dismiss) var dismiss
+    @State private var showCopiedConfirmation = false
+    @State private var presignedImageUrl: String?
+    @State private var presignedCompletionUrl: String?
+    @State private var isLoadingImages = true
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Report Number Card
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Report Number")
+                            .font(.caption)
+                            .foregroundColor(Theme.Colors.gray600)
+                            .textCase(.uppercase)
+                        
+                        HStack {
+                            Text(report.trackingId ?? "N/A")
+                                .font(.system(.title3, design: .monospaced))
+                                .fontWeight(.semibold)
+                                .foregroundColor(Theme.Colors.gray900)
+                            
+                            Spacer()
+                            
+                            if report.trackingId != nil {
+                                Button(action: copyTrackingId) {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: showCopiedConfirmation ? "checkmark" : "doc.on.doc")
+                                            .font(.system(size: 16))
+                                        Text(showCopiedConfirmation ? "Copied!" : "Copy")
+                                            .font(.subheadline.bold())
+                                    }
+                                    .foregroundColor(showCopiedConfirmation ? Theme.Colors.emerald600 : Theme.Colors.gray700)
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 8)
+                                    .background(showCopiedConfirmation ? Theme.Colors.emerald50 : Theme.Colors.gray100)
+                                    .cornerRadius(8)
+                                }
+                            }
+                        }
+                    }
+                    .padding()
+                    .background(Theme.Colors.emerald50)
+                    .cornerRadius(16)
+                    
+                    // Status
+                    HStack {
+                        Text("Status")
+                            .font(.subheadline.bold())
+                            .foregroundColor(Theme.Colors.gray700)
+                        
+                        Spacer()
+                        
+                        StatusBadge(status: report.status)
+                    }
+                    .padding()
+                    .background(Theme.Colors.surface)
+                    .cornerRadius(12)
+                    
+                    // Issue Details
+                    VStack(alignment: .leading, spacing: 16) {
+                        DetailRow(icon: "flag.fill", label: "Issue Title", value: report.issueTitle)
+                        
+                        Divider()
+                        
+                        DetailRow(icon: "mappin.circle.fill", label: "Location", value: report.location)
+                        
+                        if let description = report.issueDescription {
+                            Divider()
+                            
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Image(systemName: "doc.text.fill")
+                                        .foregroundColor(Theme.Colors.emerald600)
+                                    Text("Description")
+                                        .font(.subheadline.bold())
+                                        .foregroundColor(Theme.Colors.gray700)
+                                }
+                                
+                                Text(description)
+                                    .font(.subheadline)
+                                    .foregroundColor(Theme.Colors.gray600)
+                            }
+                        }
+                        
+                        if let department = report.department {
+                            Divider()
+                            
+                            DetailRow(icon: "building.2.fill", label: "Department", value: department)
+                        }
+                        
+                        if let allocatedTo = report.allocatedTo {
+                            Divider()
+                            
+                            DetailRow(icon: "person.fill", label: "Allocated To", value: allocatedTo)
+                        }
+                        
+                        Divider()
+                        
+                        DetailRow(icon: "calendar", label: "Submitted", value: formatDate(report.createdAt))
+                        
+                        Divider()
+                        
+                        DetailRow(icon: "clock.fill", label: "Updated", value: formatDate(report.updatedAt))
+                    }
+                    .padding()
+                    .background(Theme.Colors.surface)
+                    .cornerRadius(12)
+                    
+                    // Images
+                    if report.imageUrl != nil || presignedImageUrl != nil {
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Image(systemName: "photo.fill")
+                                    .foregroundColor(Theme.Colors.emerald600)
+                                Text("Issue Photo")
+                                    .font(.subheadline.bold())
+                                    .foregroundColor(Theme.Colors.gray700)
+                            }
+                            
+                            if let presignedUrl = presignedImageUrl, let url = URL(string: presignedUrl) {
+                                AsyncImage(url: url) { image in
+                                    image
+                                        .resizable()
+                                        .scaledToFit()
+                                        .cornerRadius(12)
+                                } placeholder: {
+                                    ProgressView()
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: 200)
+                                }
+                            } else if isLoadingImages {
+                                ProgressView()
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 200)
+                            }
+                        }
+                        .padding()
+                        .background(Theme.Colors.surface)
+                        .cornerRadius(12)
+                    }
+                    
+                    if report.completionUrl != nil || presignedCompletionUrl != nil {
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.green)
+                                Text("Completion Photo")
+                                    .font(.subheadline.bold())
+                                    .foregroundColor(Theme.Colors.gray700)
+                            }
+                            
+                            if let presignedUrl = presignedCompletionUrl, let url = URL(string: presignedUrl) {
+                                AsyncImage(url: url) { image in
+                                    image
+                                        .resizable()
+                                        .scaledToFit()
+                                        .cornerRadius(12)
+                                } placeholder: {
+                                    ProgressView()
+                                        .frame(maxWidth: .infinity)
+                                        .frame(height: 200)
+                                }
+                            } else if isLoadingImages {
+                                ProgressView()
+                                    .frame(maxWidth: .infinity)
+                                    .frame(height: 200)
+                            }
+                        }
+                        .padding()
+                        .background(Theme.Colors.surface)
+                        .cornerRadius(12)
+                    }
+                }
+                .padding()
+            }
+            .background(Theme.Colors.background)
+            .navigationTitle("Report Details")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+            }
+            .onAppear {
+                loadPresignedUrls()
+            }
+        }
+    }
+    
+    private func loadPresignedUrls() {
+        Task {
+            do {
+                let presignedUrls = try await NetworkManager.shared.getPresignedImageURLs(reportId: report.id)
+                await MainActor.run {
+                    presignedImageUrl = presignedUrls.imageUrl
+                    presignedCompletionUrl = presignedUrls.completionUrl
+                    isLoadingImages = false
+                }
+            } catch {
+                print("Error loading presigned URLs: \(error)")
+                await MainActor.run {
+                    isLoadingImages = false
+                }
+            }
+        }
+    }
+    
+    private func copyTrackingId() {
+        if let trackingId = report.trackingId {
+            UIPasteboard.general.string = trackingId
+            showCopiedConfirmation = true
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                showCopiedConfirmation = false
+            }
+        }
+    }
+    
+    private func formatDate(_ dateString: String) -> String {
+        let inputFormatter = ISO8601DateFormatter()
+        inputFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        
+        guard let date = inputFormatter.date(from: dateString) else {
+            return dateString
+        }
+        
+        let outputFormatter = DateFormatter()
+        outputFormatter.dateStyle = .medium
+        outputFormatter.timeStyle = .short
+        
+        return outputFormatter.string(from: date)
     }
 }
 

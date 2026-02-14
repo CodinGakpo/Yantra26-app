@@ -23,6 +23,7 @@ struct ReportView: View {
     @State private var errorMessage = ""
     @State private var trackingId: String?
     @State private var isDetectingLocation = false
+    @State private var showCopiedConfirmation = false
     
     var body: some View {
         NavigationView {
@@ -175,16 +176,11 @@ struct ReportView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationBarTitleDisplayMode(.inline)
-            .alert("Success!", isPresented: $showSuccess) {
-                Button("OK") {
+            .sheet(isPresented: $showSuccess) {
+                SuccessView(trackingId: trackingId ?? "", onDismiss: {
                     clearForm()
-                }
-            } message: {
-                if let trackingId = trackingId {
-                    Text("Report submitted successfully!\nTracking ID: \(trackingId)")
-                } else {
-                    Text("Report submitted successfully!")
-                }
+                    showSuccess = false
+                })
             }
             .alert("Error", isPresented: $showError) {
                 Button("OK", role: .cancel) {}
@@ -257,6 +253,108 @@ struct ReportView: View {
         selectedPhoto = nil
         selectedImageData = nil
         trackingId = nil
+    }
+}
+
+struct SuccessView: View {
+    let trackingId: String
+    let onDismiss: () -> Void
+    @State private var showCopiedConfirmation = false
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            Spacer()
+            
+            // Success Icon
+            ZStack {
+                Circle()
+                    .fill(Theme.Colors.emerald50)
+                    .frame(width: 100, height: 100)
+                
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 60))
+                    .foregroundColor(Theme.Colors.emerald600)
+            }
+            
+            // Success Message
+            VStack(spacing: 8) {
+                Text("Report Submitted!")
+                    .font(.title2.bold())
+                    .foregroundColor(Theme.Colors.gray900)
+                
+                Text("Your report has been successfully submitted and will be reviewed shortly.")
+                    .font(.subheadline)
+                    .foregroundColor(Theme.Colors.gray600)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+            }
+            
+            // Tracking ID Card
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Report Number")
+                    .font(.caption)
+                    .foregroundColor(Theme.Colors.gray600)
+                    .textCase(.uppercase)
+                
+                HStack {
+                    Text(trackingId)
+                        .font(.system(.title3, design: .monospaced))
+                        .fontWeight(.semibold)
+                        .foregroundColor(Theme.Colors.gray900)
+                    
+                    Spacer()
+                    
+                    Button(action: copyTrackingId) {
+                        HStack(spacing: 6) {
+                            Image(systemName: showCopiedConfirmation ? "checkmark" : "doc.on.doc")
+                                .font(.system(size: 16))
+                            Text(showCopiedConfirmation ? "Copied!" : "Copy")
+                                .font(.subheadline.bold())
+                        }
+                        .foregroundColor(showCopiedConfirmation ? Theme.Colors.emerald600 : Theme.Colors.gray700)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(showCopiedConfirmation ? Theme.Colors.emerald50 : Theme.Colors.gray100)
+                        .cornerRadius(8)
+                    }
+                }
+            }
+            .padding()
+            .background(Theme.Colors.emerald50)
+            .cornerRadius(16)
+            .padding(.horizontal)
+            
+            Text("Use this number to track your report status")
+                .font(.caption)
+                .foregroundColor(Theme.Colors.gray600)
+                .multilineTextAlignment(.center)
+            
+            Spacer()
+            
+            // Done Button
+            Button(action: onDismiss) {
+                Text("Done")
+                    .fontWeight(.semibold)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Theme.Colors.emerald600)
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 32)
+        }
+        .background(Theme.Colors.background)
+    }
+    
+    private func copyTrackingId() {
+        UIPasteboard.general.string = trackingId
+        showCopiedConfirmation = true
+        
+        // Reset the confirmation after 2 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            showCopiedConfirmation = false
+        }
     }
 }
 

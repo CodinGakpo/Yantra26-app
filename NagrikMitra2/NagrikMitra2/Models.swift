@@ -219,11 +219,6 @@ struct S3PresignResponse: Codable {
 struct S3PresignRequest: Codable {
     let fileName: String
     let contentType: String
-    
-    enum CodingKeys: String, CodingKey {
-        case fileName = "file_name"
-        case contentType = "content_type"
-    }
 }
 
 // MARK: - Blockchain

@@ -49,6 +49,8 @@ class NetworkManager {
             throw NetworkError.invalidURL
         }
         
+        print("🌐 API Request: \(method) \(url.absoluteString)")
+        
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -73,6 +75,11 @@ class NetworkManager {
             }
             
             if !(200...299).contains(httpResponse.statusCode) {
+                // Debug: Print server response
+                if let responseString = String(data: data, encoding: .utf8) {
+                    print("❌ Server error response (\(httpResponse.statusCode)): \(responseString)")
+                }
+                
                 if let errorResponse = try? JSONDecoder().decode([String: String].self, from: data),
                    let errorMessage = errorResponse["error"] ?? errorResponse["detail"] {
                     throw NetworkError.serverError(errorMessage)
@@ -110,7 +117,13 @@ class NetworkManager {
             contentType: "image/jpeg"
         )
         
-        let body = try JSONEncoder().encode(requestBody)
+        let encoder = JSONEncoder()
+        let body = try encoder.encode(requestBody)
+        
+        // Debug: Print what we're sending
+        if let jsonString = String(data: body, encoding: .utf8) {
+            print("🔍 Sending to presign endpoint: \(jsonString)")
+        }
         
         let presignResponse: S3PresignResponse = try await request(
             endpoint: APIConfig.Endpoints.presignS3,

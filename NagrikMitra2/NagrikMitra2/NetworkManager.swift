@@ -239,7 +239,7 @@ extension NetworkManager {
     }
     
     // MARK: - Reports
-    func submitReport(title: String, location: String, description: String, imageUrl: String?) async throws -> Report {
+    func submitReport(title: String, location: String, description: String, imageUrl: String?, department: String? = nil, confidenceScore: Double? = nil) async throws -> Report {
         struct ReportSubmission: Encodable {
             let issueTitle: String
             let location: String
@@ -263,8 +263,8 @@ extension NetworkManager {
             location: location,
             issueDescription: description,
             imageUrl: imageUrl,
-            department: nil,
-            confidenceScore: nil
+            department: department,
+            confidenceScore: confidenceScore
         )
         
         let body = try JSONEncoder().encode(submission)
@@ -278,35 +278,10 @@ extension NetworkManager {
     }
     
     func getReportByTrackingId(_ trackingId: String) async throws -> Report {
-        let baseURL = APIConfig.baseURL
-        guard let url = URL(string: baseURL + APIConfig.Endpoints.trackingDetail(trackingId)) else {
-            throw NetworkError.invalidURL
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        
-        let (data, response) = try await URLSession.shared.data(for: request)
-        
-        guard let httpResponse = response as? HTTPURLResponse else {
-            throw NetworkError.noData
-        }
-        
-        if !(200...299).contains(httpResponse.statusCode) {
-            throw NetworkError.serverError("Report not found")
-        }
-        
-        do {
-            let decoder = JSONDecoder()
-            // Don't use convertFromSnakeCase since we have explicit CodingKeys
-            return try decoder.decode(Report.self, from: data)
-        } catch {
-            print("Decoding error: \(error)")
-            if let jsonString = String(data: data, encoding: .utf8) {
-                print("Response data: \(jsonString)")
-            }
-            throw NetworkError.decodingError
-        }
+        return try await request(
+            endpoint: APIConfig.Endpoints.trackingDetail(trackingId),
+            authenticated: false
+        )
     }
     
     func getPresignedImageURLs(reportId: Int) async throws -> PresignGetResponse {

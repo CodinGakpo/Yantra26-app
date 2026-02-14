@@ -217,18 +217,39 @@ struct ReportView: View {
         Task {
             do {
                 var imageUrl: String?
+                var department: String?
+                var confidenceScore: Double?
                 
                 // Upload image if selected
                 if let imageData = selectedImageData {
                     imageUrl = try await NetworkManager.shared.uploadImage(imageData)
+                    
+                    // Call ML prediction to validate image and get department
+                    let imageBase64 = imageData.base64EncodedString()
+                    let prediction = try await NetworkManager.shared.predictDepartment(
+                        imageBase64: imageBase64,
+                        title: title,
+                        description: description
+                    )
+                    
+                    // Check if image and description match
+                    if !prediction.isValid {
+                        let errorMsg = prediction.reason ?? "The image and description do not match. Please ensure your image accurately represents the issue described."
+                        throw NSError(domain: "ValidationError", code: 400, userInfo: [NSLocalizedDescriptionKey: errorMsg])
+                    }
+                    
+                    department = prediction.department
+                    confidenceScore = prediction.confidence
                 }
                 
-                // Submit report
+                // Submit report with ML prediction results
                 let report = try await NetworkManager.shared.submitReport(
                     title: title,
                     location: location,
                     description: description,
-                    imageUrl: imageUrl
+                    imageUrl: imageUrl,
+                    department: department,
+                    confidenceScore: confidenceScore
                 )
                 
                 await MainActor.run {

@@ -70,7 +70,7 @@ static let baseURL = "https://your-backend-url.com"
 ### 3. Open in Xcode
 
 ```bash
-cd NagrikMitra2
+cd Yantra26-app
 open NagrikMitra2.xcodeproj
 ```
 
@@ -83,7 +83,7 @@ open NagrikMitra2.xcodeproj
 ## 📱 App Structure
 
 ```
-NagrikMitra2/
+Yantra26-app/
 ├── Models.swift              # Data models (User, Report, Profile)
 ├── APIConfig.swift           # API endpoints configuration
 ├── NetworkManager.swift      # Network layer
@@ -227,7 +227,7 @@ struct Colors {
 ```
 
 ### Add New Features
-1. Create new view file in NagrikMitra2/
+1. Create new view file in Yantra26-app/
 2. Add view to MainTabView or navigation
 3. Update NetworkManager with any new API calls
 4. Update Models with new data structures
@@ -265,4 +265,4 @@ For issues or questions:
 
 ## 🙏 Credits
 
-Built with SwiftUI and connected to the NagrikMitra Django backend platform for civic engagement.
+Built with SwiftUI and connected to the JanSaathi Django backend platform for civic engagement.

@@ -43,9 +43,11 @@ class NetworkManager {
         endpoint: String,
         method: String = "GET",
         body: Data? = nil,
-        authenticated: Bool = false
+        authenticated: Bool = false,
+        useBaseURL: Bool = false
     ) async throws -> T {
-        guard let url = URL(string: APIConfig.apiURL + endpoint) else {
+        let baseUrl = useBaseURL ? APIConfig.baseURL : APIConfig.apiURL
+        guard let url = URL(string: baseUrl + endpoint) else {
             throw NetworkError.invalidURL
         }
         
@@ -280,7 +282,8 @@ extension NetworkManager {
     func getReportByTrackingId(_ trackingId: String) async throws -> Report {
         return try await request(
             endpoint: APIConfig.Endpoints.trackingDetail(trackingId),
-            authenticated: false
+            authenticated: false,
+            useBaseURL: true
         )
     }
     
